@@ -1,0 +1,47 @@
+# IP profile — Spec2RTL
+# 主體單位 = project / IP（純 IP-centric，無 per-maintainer overlay）。
+# 綁定 IP、版本化、隨 IP 交付移轉。存放於 <project>/.spec2rtl/profile.yaml
+# 所有 skill 階段（spec-recovery → functional-partition → rtl-gen → review → verify）共讀此檔。
+
+profile:
+  ip:
+    name: ""                 # IP / project 名稱
+    version: "0.1.0"         # profile 版本；每次覆寫遞增
+    domain: ""               # 例：jpeg-entropy-decode
+
+  # --- 客製 hook 1：抽象層次傾向（規格鎖多緊）---
+  abstraction_bias: prefer-defer      # prefer-defer | prefer-pin | balanced
+
+  # --- hook 2：需求書寫風格 ---
+  requirement_style: rfc2119          # rfc2119 | EARS | plain-shall
+
+  # --- hook 3：領域本體 / 用語（讓 agent 講設計者的語言）---
+  ontology:
+    # <通用詞>: "<這個 IP 的說法>"
+    coefficient: "quantized DCT coefficient"
+    block: "8x8 block"
+
+  # --- hook 4：這個 IP 必須在規格層就鎖的硬體約束底線 ---
+  mandatory_hw_constraints:
+    - bounded-latency
+    - deterministic-reset
+    - defined-error-output
+    - no-side-channel-io
+
+  # --- hook 5：必鎖 vs 可延後的判準（每個 IP 不同）---
+  pin_vs_defer_policy:
+    always_pin:   [io-bit-order, coefficient-signedness, error-policy, block-boundary-scope]
+    always_defer: [transport, table-representation, datapath-style, coefficient-width]
+
+  # --- hook 6：回問設計者的互動協定 ---
+  interaction_protocol:
+    format: convergent-card           # 階段 → 任務 → 建議預設 → 一個有界選擇
+    always_recommend_default: true    # 永遠帶建議，不端 buffet
+
+  # --- hook 7：challenger（質疑設計者慣性盲點，防同溫層過擬合）---
+  challenger: on
+
+  # profile 由混合式輸入填成；記錄各欄來源以利交接稽核
+  provenance:
+    # <欄位>: template | inferred | interview | conflict-resolved
+    abstraction_bias: template
