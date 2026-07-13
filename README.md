@@ -120,6 +120,8 @@ project at `<project>/.claude/skills/<skill>/`, or for every project at `~/.clau
 Newest first — what changed in this document and why. The sections above always read as the
 current truth; this log is where the history lives.
 
+- `2026-07-13` — Removed the redundant root `PIPELINE.md` pointer; the coordination contract's
+  single home is the [`pipeline`](skills/pipeline/) skill.
 - `2026-07-13` — Added `PIPELINE.md`, the library-level coordination contract: task-graph
   scheduling, stepwise/concurrent execution modes with one loop, honest degradation, and the two-way
   ledger bus with stage-authority routing. Both skills now declare schedules and delegate execution
