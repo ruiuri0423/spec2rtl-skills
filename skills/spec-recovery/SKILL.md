@@ -65,8 +65,10 @@ The full procedure is in `references/method.md`; in outline:
 - **Carry what stays open as a tagged ledger.** Each open question names the stage that will close
   it, and is resolved with the designer in a convergent conversation, one question at a time, each
   with a recommended answer.
-- **Specify a whole design in parallel** — block by block, converged where the blocks meet, then the
-  settled results written back to every block so the set never drifts.
+- **Specify a whole design as a schedule** — discover the blocks, specify each (independent tasks),
+  converge where they meet, write the settled results back. How the schedule runs — stepwise in one
+  context or concurrently across agents — is the harness's choice, governed by the library's
+  coordination contract, `PIPELINE.md`; the outputs are identical either way.
 - **Record updates in one place** — a Revision log — rather than scattering change-notes through the
   prose.
 

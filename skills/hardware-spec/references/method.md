@@ -28,9 +28,33 @@ parameter and decision:
 These are obligations of accountability, not of style. They constrain whether a claim can be
 checked, never how a model reasons or how much it writes.
 
+One further obligation governs the stage's **boundary**. This stage may close only the ledger
+entries tagged for it — `hardware-binding` and `must-define-for-hardware`. When the hardware work
+uncovers a question outside those tags — a *behavioral* ambiguity the functional spec never pinned,
+an interface whose meaning is unclear, a suspected defect in the reference — do not quietly decide
+it here, however obvious the answer seems. Route it back into the functional spec's ledger (tagged
+`behavior` or `reference-defect`, status `open`) for the functional stage and the designer to
+settle, then re-read what this stage depends on. `PIPELINE.md` defines this routing; the obligation
+here is simply: **never resolve what you are not tagged to own.**
+
+## The schedule
+
+For a whole design, this stage declares a schedule and leaves how it runs to `PIPELINE.md` —
+stepwise or concurrent, the outputs are identical: **elicit the requirements** (one convergent
+conversation; its answers feed everything) → **architect each block** *(independent tasks — one per
+block: parameters, relations, stance)* → **verify each block** *(independent — one fresh derivation
+per drafted block)* → **partition and converge** *(barrier — needs every verified block: the
+hardware partition, the interfaces between blocks, the assembled document, and the routing of every
+surfaced question to its owner)*. If the harness cannot iterate over files, architect the one block
+in hand and say which schedule tasks remain.
+
 ## Obtaining the parameters (the recipes)
 
 Three parameters come from the functional spec; the rest come from the elicited requirements.
+State them as one checkable line per block — `Parameters: C = … (from …), A_nat = … (from …),
+feedback loops / T∞ = … (or none)` — before any stance is argued; the spec-template requires this
+line, and the verify pass re-derives it. A stance whose parameters were never stated is not an
+architecture, it is an impression.
 
 - **`C` — natural cost, cycles per result.** From the block's Behavior and Resources: enumerate the
   steps the algorithm takes to produce one result, in order, and sum their cycle costs. Show the
@@ -83,6 +107,12 @@ a **separate pass re-derives its parameters and re-runs its relations independen
 mismatch — a different `C`, a feedback loop the first pass missed, an arithmetic slip, or a
 transformation whose stated driving requirement does not actually force it. Only a block whose
 parameters and decisions survive re-derivation is passed on; a mismatch is surfaced, not smoothed.
+
+The verify pass checks form as well as values. In particular: **was each cited relation actually
+computed?** A stance that *invokes* a relation ("II < C, therefore pipeline") without its
+`Parameters:` line and the arithmetic is a finding — the most common way a derivation quietly
+degrades into an impression. It also checks the boundary obligation: any entry resolved here that
+carries a tag this stage does not own is flagged for re-routing, not accepted.
 
 Because this re-derivation runs as its own agent — and, for the load-bearing numbers, can run more
 than once — the guarantee does not rest on any single model call being right. It rests on the

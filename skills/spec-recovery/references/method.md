@@ -94,6 +94,12 @@ that will close it — so it travels to the right place instead of being redisco
 Give each entry a status too — `open`, `resolved`, or `deferred` with a reason — so the ledger
 carries its own history and a downstream stage can inherit exactly the entries tagged for it.
 
+The ledger runs in both directions (`PIPELINE.md` defines the rules): a stage may close only the
+entries tagged for it, and a downstream stage that uncovers a *behavioral* question routes it back
+into this spec's ledger rather than deciding it. When that happens, this stage owns the entry:
+resolve it with the designer, update the spec (logging the change in the Revision log), and the
+downstream stage re-reads what it depends on.
+
 ### Resolving with the designer
 
 The first time through, the spec is *complete in structure but still carries open questions*. Do not
@@ -109,28 +115,31 @@ choices at once.
 
 A reference is often not one file but a whole design — many files, each a block, forming a pipeline.
 Every block deserves the same specification a single one gets, so the hardware can be built up from
-the blocks, bottom-up, against specs that are already clear and connected. The skill fans out,
-draws the results together, and pushes the settled results back down, in five movements:
+the blocks, bottom-up, against specs that are already clear and connected.
 
-1. **Sketch a first-version top-level spec.** Read the entry point — the driver or top function — to
-   see what the whole design does and to identify the blocks it is made of and how they connect.
-   These are the software's *own* blocks (its files and functions), not a hardware partition invented
-   here. The result is a provisional spec of the whole, whose behavior is the pipeline of blocks.
-2. **Specify every block in parallel.** Give each block to its own sub-agent, which runs this same
-   procedure — Pass A, then Pass B — on that one file and returns its spec. Parallelism is what makes
-   a large design practical, and because every sub-agent follows the same procedure, the block specs
-   come back consistent with one another.
-3. **Converge the block specs.** Reconcile them where the blocks meet: does one block's output
-   match, in meaning, the next block's input? Here the *related-file* route pays off — a question
-   left open in one block is often answered by a sibling's spec, and a disagreement between two of
-   them is a conflict to surface. What is still open afterward is a genuine system-level question.
-4. **Converge the top-level spec.** Fold the now-confirmed understanding of the blocks back into the
-   top-level spec, so it is consistent with its parts and the questions only the whole could answer
-   are settled.
-5. **Propagate the resolutions back to the blocks.** Convergence settles things — a question answered
-   by a sibling, a ledger entry resolved, a cross-reference. Push those back into the individual
-   block specs, in parallel, so a block is never left "draft, pending" while the system has moved on.
-   The whole set then tells one consistent story.
+For a whole design this skill **declares a schedule** and leaves how it runs to the library's
+coordination contract, `PIPELINE.md` — stepwise in one context, or concurrently across agents,
+whichever the harness supports; the outputs are identical either way. The schedule is:
+
+1. **Discover** — read the entry point (the driver or top function) to see what the whole design
+   does, identify the blocks it is made of and how they connect, and sketch a first-version
+   top-level spec. These are the software's *own* blocks (its files and functions), not a hardware
+   partition invented here. This task's output determines the fan-out that follows.
+2. **Specify each block** *(independent tasks — one per block)* — run this same procedure, Pass A
+   then Pass B, on that one file, producing that block's spec. Because every task follows the same
+   procedure, the specs come back consistent with one another whether they ran in turn or at once.
+3. **Converge** *(barrier — needs every block spec)* — reconcile the specs where the blocks meet:
+   does one block's output match, in meaning, the next block's input? Here the *related-file* route
+   pays off — a question left open in one block is often answered by a sibling's spec, and a
+   disagreement between two is a conflict to surface. Then fold the confirmed understanding back
+   into the top-level spec. What is still open afterward is a genuine system-level question.
+4. **Write back** *(independent tasks — one per block)* — push the settled results down into each
+   block spec: status lines, closed ledger entries, cross-references. A block is never left "draft,
+   pending" while the system has moved on; the whole set tells one consistent story.
+
+If the harness cannot iterate over files at all, do not pretend: specify the one block in hand,
+state that it is part of a larger design, and say which schedule tasks remain (see `PIPELINE.md` on
+honest degradation).
 
 ---
 

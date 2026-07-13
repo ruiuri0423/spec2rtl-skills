@@ -71,9 +71,13 @@ obtaining the parameters, composing the transformations, and verifying them — 
   define a protocol at each interface — naming the requirement and the number beside the departure.
 - **Partition into hardware blocks**, which need not match the software blocks, following from the
   transformations above.
-- **Show, compute in the open, and verify** — every parameter derived from the spec with its source
-  shown; the arithmetic done with a tool or written out; and a separate pass re-deriving the
-  parameters so a decision passes forward only when a fresh derivation confirms it.
+- **Show, compute in the open, and verify** — every block opens with a checkable `Parameters:` line
+  (C, A_nat, T∞, each with its source); the arithmetic is done with a tool or written out; and a
+  separate pass re-derives the parameters and confirms each cited relation was actually computed.
+- **Stay inside the stage's authority** — this stage closes only the ledger entries tagged for it;
+  a behavioral question uncovered here is routed back to the functional spec's ledger, never decided
+  quietly (`PIPELINE.md` defines the routing). How a whole design's schedule runs — stepwise or
+  concurrent — is likewise governed by `PIPELINE.md`.
 - **Flag, don't fabricate** — a parameter that cannot be obtained is marked open, not guessed.
 
 ## What this skill must not do
