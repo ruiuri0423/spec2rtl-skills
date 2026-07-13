@@ -101,11 +101,17 @@ project at `<project>/.claude/skills/<skill>/`, or for every project at `~/.clau
 
 - **`spec-recovery` — complete and validated.** `SKILL.md`, `references/method.md`, and
   `references/spec-template.md` are written, mutually consistent, and have been exercised on two
-  unrelated codebases (a MATLAB JPEG pipeline and a Python game). One caveat, surfaced honestly by
-  the recovery pass that wrote this README: `references/profile-schema.yaml` — a per-IP profile
-  schema — is present but currently **orphaned**; none of the skill's prose references it, so it is
-  a designed-but-not-yet-wired-in artifact, not part of the active method.
+  unrelated codebases (a MATLAB JPEG pipeline and a Python game).
 - **`hardware-spec` — drafted.** `SKILL.md` is complete and the method is fully described in prose,
   but the reference material it points to is **not yet written**: `references/requirements-checklist.md`,
   `references/method.md`, and `references/spec-template.md`. Until they exist, an agent cannot pull
   the exact requirement checklist or the output template from the repo.
+
+## Revision log
+
+Newest first — what changed in this document and why. The sections above always read as the
+current truth; this log is where the history lives.
+
+- `2026-07-13` — Removed the orphaned `profile-schema.yaml` from `spec-recovery` (designed but never
+  wired into the method) and updated the status accordingly; its references are now `method.md` and
+  `spec-template.md`. README recovered over the whole repo, and this Revision log added.

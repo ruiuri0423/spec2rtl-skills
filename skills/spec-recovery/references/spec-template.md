@@ -15,6 +15,12 @@ Write every section as prose. Explain not only *what* is true but *why* it is tr
 reference does not settle something, do not guess — write `UNCONFIRMED:` followed by what
 is known and what is missing, and carry it down to the open questions at the end.
 
+Keep each section on its own point. The prose carries the design; everything *about* the
+document — its status, what has changed, and what is still open — lives in the dedicated fields
+(the status line, the open-questions ledger, and the Revision log at the foot), never woven into
+the prose as an aside. A reader should be able to read any section for what it says now, without
+tripping over its history.
+
 *Derived from: `<source file>`. Status: draft, pending the open questions below.*
 
 ---
@@ -80,3 +86,13 @@ Tag each entry as one of:
 
 Mark each entry `open`, `resolved`, or `deferred` (with a reason). A downstream stage inherits
 the entries tagged for it and must close them before it is done.
+
+## Revision log
+
+Newest first, one line each: what changed in this document and why. The sections above always
+read as the current truth; this log — not scars left in the prose — is where the history lives.
+Add an entry whenever the spec is updated (a changed reference, a settled decision, a removed
+block), and keep the body clean. This is distinct from the open-questions ledger above: the ledger
+tracks the state of design *decisions*; this log tracks changes to the *document*.
+
+- `<date or version>` — <what changed, and why>.

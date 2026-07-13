@@ -152,3 +152,22 @@ each one as a concrete rule:
 - saturation versus wraparound on overflow,
 - rounding mode and fixed-point scaling,
 - any value that depends on the result of a previous call (cross-call prediction).
+
+---
+
+## Updating an existing spec
+
+When a spec already exists and something changes — the reference is edited, a decision is settled,
+a block or a file is removed — do not re-derive the whole document, and do not scatter change-notes
+through the prose. Work as a focused update:
+
+- **Find the delta.** Identify only what actually changed since the spec was written.
+- **Rewrite just the sections it touches**, so each again reads as clean prose describing the
+  current truth — no "(previously X)" scars, no dangling mention of what is now gone.
+- **Record the change in one place**: add a newest-first line to the Revision log at the foot of
+  the document, saying what changed and why.
+- **Leave everything the delta did not touch exactly as it was.**
+
+This keeps the body always-current and on its own point while the history stays in a single field.
+It is distinct from the open-questions ledger: the ledger tracks the state of design *decisions*
+(open → resolved / deferred); the Revision log tracks changes to the *document itself*.
