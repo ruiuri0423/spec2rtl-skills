@@ -102,16 +102,20 @@ project at `<project>/.claude/skills/<skill>/`, or for every project at `~/.clau
 - **`spec-recovery` — complete and validated.** `SKILL.md`, `references/method.md`, and
   `references/spec-template.md` are written, mutually consistent, and have been exercised on two
   unrelated codebases (a MATLAB JPEG pipeline and a Python game).
-- **`hardware-spec` — drafted.** `SKILL.md` is complete and the method is fully described in prose,
-  but the reference material it points to is **not yet written**: `references/requirements-checklist.md`,
-  `references/method.md`, and `references/spec-template.md`. Until they exist, an agent cannot pull
-  the exact requirement checklist or the output template from the repo.
+- **`hardware-spec` — complete, not yet exercised.** `SKILL.md` and all three references —
+  `references/requirements-checklist.md` (the requirement set and each requirement's convergence
+  relation), `references/method.md` (obtaining the parameters, composing the transformations, the
+  obligations, and the verify pass), and `references/spec-template.md` (the output skeleton) — are
+  written and mutually consistent. It has not yet been run end to end on a design.
 
 ## Revision log
 
 Newest first — what changed in this document and why. The sections above always read as the
 current truth; this log is where the history lives.
 
+- `2026-07-13` — Both skills reconstructed into coherent documents (SKILL.md slimmed to a
+  contract/overview, procedures consolidated in `method.md`); `hardware-spec` completed with its
+  three references. Status updated: `hardware-spec` is now complete (not yet exercised).
 - `2026-07-13` — Removed the orphaned `profile-schema.yaml` from `spec-recovery` (designed but never
   wired into the method) and updated the status accordingly; its references are now `method.md` and
   `spec-template.md`. README recovered over the whole repo, and this Revision log added.
