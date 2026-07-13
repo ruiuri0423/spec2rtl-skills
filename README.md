@@ -33,7 +33,14 @@ it — `behavior`, `reference-defect`, `hardware-binding`, or `must-define-for-h
 status. `hardware-spec`'s inbox is exactly the entries tagged `hardware-binding` and
 `must-define-for-hardware`; it closes them using requirements the code never contained, and then
 emits its own ledger for the RTL stage. So no stage re-reads another's whole output — each inherits
-precisely the decisions it owns.
+precisely the decisions it owns. The bus runs both ways: a stage may close only the entries tagged
+for it, and a question uncovered outside its authority is routed back to its owner rather than
+decided quietly.
+
+How all of this *runs* — schedules of tasks with dependencies, stepwise or concurrent execution,
+barriers, honest degradation on a limited harness, and the two-way ledger routing — is defined once,
+at library level, in the [`pipeline`](skills/pipeline/) skill. The skills declare their schedules; any agent, in
+any harness, executes them at whatever capability it has.
 
 ```
    reference model
@@ -113,6 +120,14 @@ project at `<project>/.claude/skills/<skill>/`, or for every project at `~/.clau
 Newest first — what changed in this document and why. The sections above always read as the
 current truth; this log is where the history lives.
 
+- `2026-07-13` — Removed the redundant root `PIPELINE.md` pointer; the coordination contract's
+  single home is the [`pipeline`](skills/pipeline/) skill.
+- `2026-07-13` — Added `PIPELINE.md`, the library-level coordination contract: task-graph
+  scheduling, stepwise/concurrent execution modes with one loop, honest degradation, and the two-way
+  ledger bus with stage-authority routing. Both skills now declare schedules and delegate execution
+  to it; hardware-spec gained the mandatory per-block `Parameters:` line, the boundary
+  (never-resolve-outside-your-tags) obligation, and a verify check that each cited relation was
+  actually computed.
 - `2026-07-13` — Both skills reconstructed into coherent documents (SKILL.md slimmed to a
   contract/overview, procedures consolidated in `method.md`); `hardware-spec` completed with its
   three references. Status updated: `hardware-spec` is now complete (not yet exercised).

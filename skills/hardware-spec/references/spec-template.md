@@ -47,10 +47,16 @@ For each hardware block, its **stance** and the reasoning behind it:
   number its relation gave*: "unfolded ×K to meet the throughput requirement [§, hard] against a
   natural cost C=…".
 
-In either case, show the parameters the stance rests on with their derivation and source — the
-natural cost `C`, the fully-parallel resource `A_nat`, and any feedback loop with its iteration
-bound `T∞` (or "no feedback"). Record the storage the block must hold (the state carried within and
-across results) and the resolved bit widths.
+In either case, the block's entry **opens with one checkable line** stating the parameters its
+stance rests on, each with its source:
+
+> **Parameters:** `C = … (from <spec §>)`, `A_nat = … (from <spec §>)`, `feedback loops / T∞ = …`
+> (or `none`).
+
+This line is not optional. It is what the verify pass re-derives, and a stance argued without it —
+a relation invoked but never computed — is an impression, not an architecture. After it, record the
+storage the block must hold (the state carried within and across results) and the resolved bit
+widths.
 
 ## 4. Interfaces
 
