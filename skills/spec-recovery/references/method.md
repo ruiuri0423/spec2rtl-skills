@@ -1,138 +1,156 @@
 # method — how spec-recovery reads a reference
 
-This is the reasoning procedure the skill follows. It works in two passes over the three
-things that make up any program: its **inputs and outputs**, its **data structures**, and
-its **algorithm** (the control and computation flow). The first pass *understands* the
-reference; the second pass *interrogates* it. Nothing is invented: anything the reference
-does not settle is either resolved with the user in conversation, or written down as
-`UNCONFIRMED`.
+This is the reasoning procedure behind the skill. It reads a reference in **two passes** — the first
+to understand it faithfully, the second to interrogate it for gaps — and turns what it finds into a
+specification with an open-questions ledger. Everything below is that one procedure, in the order it
+is carried out.
 
-Read the two passes in order. If the understanding in Pass A is wrong, everything built on
-top of it is wrong, so keep Pass A faithful and free of assumptions — save all judgement
-for Pass B.
+## Working mode
+
+The procedure drives a model's reasoning; it does not prescribe the shape of the output. A skill
+cannot give a model reasoning it does not have, so the goal is not that every model produce the same
+words, but that every model produce a result that is **true and reasoned**, degrading to honest open
+questions where it cannot. That is enforced by obligations of accountability, never by rules of
+style:
+
+- **Every statement is traceable** — to a line of the reference, a named related file, or a stated
+  definition. Nothing is invented.
+- **Every claim is reasoned, not guessed** — the two passes and the triage below are reasoning
+  moves, not a template to pad out.
+- **What cannot be settled is flagged, not fabricated** — marked `UNCONFIRMED` or put to the
+  designer. A model that reasons more says more; a model that reasons less says less; neither says
+  something false.
+
+There are no rules here on length or wording. The section structure exists so the result reads
+clearly and hands forward consistently — the anchor is the reasoning, not a house style.
 
 ---
 
-## Pass A — Understand (extract faithfully, do not judge yet)
+## Pass A — Understand (state it faithfully, judge nothing yet)
 
-Describe, in plain terms, the three essentials exactly as the code presents them.
+Describe, in plain terms, the three things that make up any program, exactly as the reference
+presents them. If Pass A is wrong, everything built on it is wrong, so keep it free of assumptions.
 
-### 1. Inputs and outputs
-- The declared arguments and return values, and what each one means.
-- The **hidden** inputs and outputs — the ones not in the signature but that the behavior
-  depends on or produces: files it loads, global or persistent state, constant tables
-  baked into the body, and values it computes but drops instead of returning. These are
-  the most commonly missed and the most important to surface. The per-language patterns
-  that reveal them are listed at the end of this document.
-- For each input and output, describe what it *means* — what it represents and its role in
-  the computation. Interpret it at the level of meaning, not representation: do not pin down
-  details such as bit ordering (MSB- or LSB-first), packing, or interface form at this
-  stage, even where the reference happens to imply one. Those are representational choices
-  that belong to later stages, and capturing only the meaning here keeps the specification
-  at the right level of abstraction.
+**1. Inputs and outputs.** The declared arguments and returns, and the **hidden** ones the signature
+omits — files it loads, global or persistent state, constant tables baked into the body, values it
+computes but drops. These are the most commonly missed and the most important to surface (the
+per-language patterns that reveal them are tabulated at the end). Describe each by what it *means* —
+what it represents and its role — not by its representation: do not pin down bit ordering, packing,
+or interface form here, even where the code implies one. Those are deferred to a later stage, and
+keeping to meaning holds the spec at the right level.
 
-### 2. Data structures
-- Every value that holds state: scalars, arrays, tables, buffers, records.
-- For each, capture what will matter later: its element type, its size or shape, how it is
-  indexed, and its lifetime — does it live only within a single call (transient), or does
-  it carry across calls (persistent state)? These distinctions are what eventually decide
-  whether something becomes a register, a memory, or a wire, so record them now — without
-  choosing any of that hardware yet. Describe each structure by what it holds and why it
-  exists, not by a concrete encoding or width; the concrete form is settled later.
+**2. Data structures.** Every value that holds state — scalars, arrays, tables, buffers. For each,
+capture what will matter later: its element type, its size or shape, how it is indexed, and its
+lifetime — does it live within one call (transient) or carry across calls (persistent state)? These
+distinctions are what later decide register, memory, or wire, so record them now, by what the
+structure holds and why, not by a concrete width.
 
-### 3. Algorithm flow
-- The sequence of steps from inputs to outputs: the phases, the loops and what bounds
-  them, the branches and the conditions that select them.
-- The numeric semantics inside the steps: sign handling, saturation or wraparound,
-  rounding, and fixed-point scaling. These are easy to lose and hard to recover after the
-  fact, so state them precisely.
+**3. Algorithm flow.** The steps from inputs to outputs — the phases, the loops and what bounds
+them, the branches and their conditions — and the **numeric semantics** inside the steps: sign
+handling, saturation or wraparound, rounding, fixed-point scaling, and any value that depends on the
+result of a previous call. These are the details most easily lost between a reference and its
+hardware, so state them precisely.
 
-### The file's place in a larger system
-
-A reference file is usually one part of a system: a decoder has an encoder somewhere, a
-processing stage has the stage that feeds it, and the tables it loads are produced by yet
-another file. Note these counterparts and dependencies as you come across them. You are
-specifying only this file, but knowing what it is paired with is what keeps the next pass
-honest.
-
-Write all of this down as a faithful summary of what the reference actually does. Do not
-yet ask whether it is complete or hardware-ready — that is Pass B.
+**The file's place in a larger system.** A reference file is usually one part of a whole: a decoder
+has an encoder somewhere, a stage has the stage that feeds it, a table has the file that generates
+it. Note these counterparts and dependencies as you meet them — you are specifying one file, but
+knowing what it is paired with is what keeps the next pass honest.
 
 ---
 
 ## Pass B — Interrogate (find the gaps, then close or flag them)
 
-Go back over the same three essentials and ask, of each, whether it is complete enough to
-build from. The bar differs by essential:
+Go back over the same three essentials and ask whether each is complete enough to build from. Inputs
+and outputs must reach *confirmed* — they are the block's boundary. Data structures and algorithm
+flow may carry open items, but every one must be made visible, never silently resolved.
 
-- **Inputs and outputs must reach `confirmed`.** They are the boundary of the whole block
-  and cannot stay vague.
-- **Data structures and algorithm flow may carry open items**, but every open item must be
-  made visible — never silently resolved.
+When something is uncertain or undefined, do not guess and do not jump straight to marking it open.
+First ask **where its answer would live**, in this order:
 
-Ask, in this order:
-
-1. **Inputs and outputs — is each one's purpose and form unambiguous?** Look for unstated
-   ordering, an output the caller needs but the code drops, or an input whose real form is
-   only a modelling convenience (for example, an ASCII `'0'/'1'` string standing in for a
-   bit stream).
-2. **Data structures — is any definition incomplete in meaning?** Look for a table whose
-   encoding is described only implicitly, a structure whose purpose is unclear, or state
-   whose reset or initial value is undefined. Do not treat a missing representational detail
-   — a width, a bit ordering — as a gap here; those are deferred to later stages by design.
-3. **Algorithm flow — does any step lose information?** Look for an unbounded search loop,
-   a branch with no defined alternative, an error path the code simply crashes on, or a
-   boundary assumption that is never stated.
-
-When something is uncertain or undefined, do not guess, and do not jump straight to marking
-it open. First ask **where its answer would live**, and raise that question proactively.
-There are three possibilities:
-
-1. **Is there a related file?** The answer may live in another part of the system — the
-   encoder that produced what this decoder consumes, the stage that feeds this one, the file
-   that generates a table this one loads. If so, the point is a candidate to confirm there,
-   not a settled fact here: name the file that would settle it, and read it or ask for it.
-2. **Is there a related definition?** The answer may already be fixed by something known — a
-   standard, a specification, or a convention the domain settles (for example, what a
-   category-zero symbol means in JPEG). If so, resolve it from that definition. Where the
-   definition and the code disagree, surface the conflict rather than silently trusting
-   either one.
-3. **Is it genuinely undefined?** If no file and no definition settles it, the point is truly
-   open. Put it to the user as a single convergent question carrying a recommended answer; or,
-   if no answer is available, mark it `UNCONFIRMED` in the specification, stating what is
-   known and what is missing.
-
-This ordering keeps the skill honest and makes `UNCONFIRMED` a last resort, reached only
-after a related file and a known definition have both been ruled out. A correctness finding
-you can only see half of is a candidate to confirm (1) or a matter of definition (2) — not a
-proven defect. Reserve a firm claim for what is visibly wrong within this file alone.
+1. **A related file?** The answer may be in another part of the system — the encoder behind this
+   decoder, the file that generates a table it loads. If so, the point is a candidate to confirm
+   there, not a fact here: name the file that would settle it, and read it or ask for it. A
+   correctness finding you can only see half of is a candidate, never a proven defect.
+2. **A known definition?** The answer may be fixed by a standard, a specification, or a domain
+   convention (what a category-zero symbol means in JPEG). Resolve it from that — and where the
+   definition and the code disagree, surface the conflict rather than trust either silently.
+3. **Genuinely undefined?** Only if neither settles it is the point truly open. Put it to the
+   designer as a single convergent question with a recommended answer, or mark it `UNCONFIRMED`,
+   stating what is known and what is missing.
 
 ### Tag every open question with where it is closed
 
-Anything that stays open is written into the specification's open questions, and each one
-carries a tag saying **which stage will close it**, so the question travels to the right place
-instead of waiting to be rediscovered. There are four kinds:
+Whatever stays open goes into the specification's ledger, and each entry is tagged with the stage
+that will close it — so it travels to the right place instead of being rediscovered later:
 
-- **behavior** — what the design should do; settled with the designer at spec time, and
-  settling it changes the spec.
-- **reference-defect** — a fault in the source model itself; routed to fixing, or knowingly
-  accepting, the reference, not carried forward as if it were intended.
-- **hardware-binding** — a representational or implementation choice deliberately deferred (a
-  width, an interface form, a table's encoding); closed at a later hardware stage, informed by
-  the ranges this spec records under Resources.
-- **must-define-for-hardware** — behavior the reference left undefined that hardware cannot
-  leave undefined (an illegal input, an error path, an out-of-range value); it may stay open
-  here, but must be closed before the design becomes hardware.
+- **behavior** — what the design should do; settled with the designer now (settling it changes the
+  spec);
+- **reference-defect** — a fault in the source model; fixed or knowingly accepted;
+- **hardware-binding** — a representational choice deliberately deferred to a later hardware stage (a
+  width, an interface form, a table encoding);
+- **must-define-for-hardware** — behavior left undefined that hardware cannot leave undefined (an
+  illegal input, an error path, an out-of-range value).
 
-Give each open question a status as well — `open`, `resolved`, or `deferred` with a reason — so
-the list is a ledger that carries its own history rather than a note that is read once and lost.
+Give each entry a status too — `open`, `resolved`, or `deferred` with a reason — so the ledger
+carries its own history and a downstream stage can inherit exactly the entries tagged for it.
+
+### Resolving with the designer
+
+The first time through, the spec is *complete in structure but still carries open questions*. Do not
+leave them as a silent list. Work through them with the designer in a **convergent conversation** —
+one question at a time, each phrased plainly and each carrying a recommended answer drawn from the
+code or the domain — and as each is answered, move it out of the ledger and into the body. The
+designer reaches a trustworthy spec through a short series of small, clear decisions, never a wall of
+choices at once.
 
 ---
 
-## Hidden input / output patterns, by language
+## Working across a whole design
 
-The signature is never the whole story. These are the places real inputs, outputs, and
-state hide outside it.
+A reference is often not one file but a whole design — many files, each a block, forming a pipeline.
+Every block deserves the same specification a single one gets, so the hardware can be built up from
+the blocks, bottom-up, against specs that are already clear and connected. The skill fans out,
+draws the results together, and pushes the settled results back down, in five movements:
+
+1. **Sketch a first-version top-level spec.** Read the entry point — the driver or top function — to
+   see what the whole design does and to identify the blocks it is made of and how they connect.
+   These are the software's *own* blocks (its files and functions), not a hardware partition invented
+   here. The result is a provisional spec of the whole, whose behavior is the pipeline of blocks.
+2. **Specify every block in parallel.** Give each block to its own sub-agent, which runs this same
+   procedure — Pass A, then Pass B — on that one file and returns its spec. Parallelism is what makes
+   a large design practical, and because every sub-agent follows the same procedure, the block specs
+   come back consistent with one another.
+3. **Converge the block specs.** Reconcile them where the blocks meet: does one block's output
+   match, in meaning, the next block's input? Here the *related-file* route pays off — a question
+   left open in one block is often answered by a sibling's spec, and a disagreement between two of
+   them is a conflict to surface. What is still open afterward is a genuine system-level question.
+4. **Converge the top-level spec.** Fold the now-confirmed understanding of the blocks back into the
+   top-level spec, so it is consistent with its parts and the questions only the whole could answer
+   are settled.
+5. **Propagate the resolutions back to the blocks.** Convergence settles things — a question answered
+   by a sibling, a ledger entry resolved, a cross-reference. Push those back into the individual
+   block specs, in parallel, so a block is never left "draft, pending" while the system has moved on.
+   The whole set then tells one consistent story.
+
+---
+
+## Updating an existing spec
+
+When a spec already exists and something changes — the reference is edited, a decision is settled, a
+block or file is removed — do not re-derive the whole document and do not scatter change-notes
+through the prose. Find the delta; rewrite only the sections it touches, so each again reads as clean
+prose describing the current truth (no "(previously X)" scars); add one newest-first line to the
+**Revision log** at the foot of the document saying what changed and why; and leave everything else
+exactly as it was. This keeps the body always-current while the history stays in one field. It is
+distinct from the ledger: the ledger tracks the state of design *decisions*, the Revision log tracks
+changes to the *document*.
+
+---
+
+## Reference — hidden input / output patterns, by language
+
+The signature is never the whole story. These are where real inputs, outputs, and state hide outside
+it.
 
 | Language | Where hidden I/O and state hide |
 |---|---|
@@ -141,33 +159,12 @@ state hide outside it.
 | Python | `open()` / `pd.read_*` / `np.load`; module-level constants and dicts; `os.environ`; tables pulled in by import |
 | Any language | anything read from state that was not passed in; implicit default values; a table treated as a constant; state that survives between calls |
 
----
+## Reference — numeric semantics worth recovering precisely
 
-## Numeric semantics worth recovering precisely
-
-These are the details most often lost between a reference model and its hardware, so state
-each one as a concrete rule:
+State each of these as a concrete rule when it appears; they are the details most often lost between
+a reference model and its hardware:
 
 - sign reconstruction or sign extension,
 - saturation versus wraparound on overflow,
 - rounding mode and fixed-point scaling,
 - any value that depends on the result of a previous call (cross-call prediction).
-
----
-
-## Updating an existing spec
-
-When a spec already exists and something changes — the reference is edited, a decision is settled,
-a block or a file is removed — do not re-derive the whole document, and do not scatter change-notes
-through the prose. Work as a focused update:
-
-- **Find the delta.** Identify only what actually changed since the spec was written.
-- **Rewrite just the sections it touches**, so each again reads as clean prose describing the
-  current truth — no "(previously X)" scars, no dangling mention of what is now gone.
-- **Record the change in one place**: add a newest-first line to the Revision log at the foot of
-  the document, saying what changed and why.
-- **Leave everything the delta did not touch exactly as it was.**
-
-This keeps the body always-current and on its own point while the history stays in a single field.
-It is distinct from the open-questions ledger: the ledger tracks the state of design *decisions*
-(open → resolved / deferred); the Revision log tracks changes to the *document itself*.
