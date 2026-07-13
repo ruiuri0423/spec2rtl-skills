@@ -42,11 +42,15 @@ obligation here is simply: **never resolve what you are not tagged to own.**
 For a whole design, this stage declares a schedule and leaves how it runs to the `pipeline` skill —
 stepwise or concurrent, the outputs are identical: **elicit the requirements** (one convergent
 conversation; its answers feed everything) → **architect each block** *(independent tasks — one per
-block: parameters, relations, stance)* → **verify each block** *(independent — one fresh derivation
-per drafted block)* → **partition and converge** *(barrier — needs every verified block: the
-hardware partition, the interfaces between blocks, the assembled document, and the routing of every
-surfaced question to its owner)*. If the harness cannot iterate over files, architect the one block
-in hand and say which schedule tasks remain.
+block: parameters, relations, stance — each producing a draft, not a deliverable)* → **verify each
+block** *(independent — one fresh derivation per drafted block)* → **partition, aggregate, and
+converge** *(barrier — needs every verified block: the hardware partition, the interfaces between
+blocks, and the assembly of the drafts into the one architecture document — one body, one merged
+ledger, one Revision log — with every surfaced question routed to its owner)*. The deliverable is
+that single document; per-block drafts do not survive the barrier, so every later resolution —
+including an answer routed back from the functional stage — lands in exactly one place (the
+`pipeline` skill defines this aggregation point). If the harness cannot iterate over files,
+architect the one block in hand and say which schedule tasks remain.
 
 ## Obtaining the parameters (the recipes)
 

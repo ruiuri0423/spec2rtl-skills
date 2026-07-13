@@ -40,8 +40,8 @@ without its reason.
 
 ## What this skill reads
 
-It reads the functional specification from spec-recovery — the per-block specs and the top-level
-spec — and above all their **open-questions ledger**: the entries tagged `hardware-binding` and
+It reads the functional specification from spec-recovery — one document, with its top-level and
+per-block sections — and above all its **open-questions ledger**: the entries tagged `hardware-binding` and
 `must-define-for-hardware` are this stage's inbox to close. Each block's *Resources* section — what
 it holds, what it computes, the ranges its values take — is the raw material for the parameters the
 relations need. What the spec cannot supply — throughput, clock, latency, area, power, interfaces,

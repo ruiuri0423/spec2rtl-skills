@@ -37,18 +37,38 @@ exotic than that:
 - A **dependency** says a task needs another's output. Tasks with no dependency between them are
   **independent** — the schedule marks them so, because independence is what parallelism (when
   available) exploits.
-- A **barrier** is a task that depends on *all* of a fan-out (convergence depends on every block
-  spec; write-back depends on convergence). Barriers are how stages synchronize.
+- A **barrier** is a task that depends on *all* of a fan-out (aggregation-and-convergence depends
+  on every block draft; the partition depends on every verified block). Barriers are how stages
+  synchronize.
 
 Schedules are **discovered, not fixed**: the first task is usually exploratory (read the entry
 point, list the blocks; elicit the requirements), and its output determines the fan-out that
 follows. Draw the schedule as far as it is known, execute, extend.
 
 Each skill declares its own schedule in its `method.md` — spec-recovery declares
-*discover → specify each block (independent) → converge (barrier) → write back (independent)*;
-hardware-spec declares *elicit → per-block architecture (independent) → verify each block
-(independent, after its draft) → partition and converge (barrier)*. This skill is how any such
-declaration is executed.
+*discover → draft each block (independent) → aggregate and converge (barrier) → resolve with the
+designer*; hardware-spec declares *elicit → per-block architecture drafts (independent) → verify
+each block (independent, after its draft) → partition, aggregate, and converge (barrier)*. This
+skill is how any such declaration is executed.
+
+## Drafts, deliverables, and the aggregation point
+
+A fan-out's outputs are **drafts** — intermediate artifacts that exist to be merged — and each
+stage's deliverable is **one document**: one body, one ledger, one Revision log. The rule that makes
+this cheap is about *timing*: **aggregation happens at the stage's barrier, before any open question
+is resolved.** Everything before the barrier is generation, which parallelizes; everything after is
+resolution, which is edits — and an edit must have exactly one place to land. Aggregate too late (or
+never) and every shared decision exists in N copies: every resolution costs N synchronized edits,
+and a write-back task exists whose only job is keeping the copies telling one story. Aggregate at
+the barrier and that cost is zero.
+
+Concretely: a draft may travel as a returned message or a working file, whichever the harness
+supports, but it does not survive the barrier as a separate document. The barrier task merges the
+drafts — unifying terminology, collapsing ledger entries that are one question seen from several
+blocks into a single entry naming the blocks it touches, turning cross-file references into section
+references — and from then on the single document is the only artifact any task edits. The ledger
+bus below routes entries between *stage documents*, one ledger per stage, never between per-block
+fragments.
 
 ## Two execution modes, one loop
 
@@ -61,7 +81,7 @@ file access.
 
 **Concurrent** — the harness can run several agents at once. Assign each independent task to its own
 agent, run them simultaneously, and hold the barrier until all have returned. Assignment is
-per-task: one sub-agent per block spec, one per verify pass. This mode changes wall-clock time and
+per-task: one sub-agent per block draft, one per verify pass. This mode changes wall-clock time and
 nothing else.
 
 The **loop is the same in both**: take the next task whose dependencies are satisfied → execute it →

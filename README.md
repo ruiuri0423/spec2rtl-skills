@@ -68,8 +68,9 @@ uncertain goes through a **three-route triage** — is the answer in a related f
 definition or standard? — and only what neither settles becomes a genuinely open question, put to
 the designer one at a time with a recommended default. It captures *meaning*, not representation:
 bit widths, ordering, and interface form are named as deferred, never pinned. A whole multi-file
-design is handled by parallel sub-agents — specify each block, converge where they meet, then write
-the settled results back to every block so the set stays consistent. It does no hardware
+design is handled by parallel sub-agents — draft each block, then aggregate and converge at a
+barrier into **one document** with one merged ledger, before anything is resolved with the designer
+— so every decision has exactly one home and no write-back pass exists. It does no hardware
 partitioning, no micro-architecture, and no RTL.
 
 ## `hardware-spec` — give it a hardware shape
@@ -92,8 +93,10 @@ the RTL) to the next stage.
   at a time, each carrying a recommended answer.
 - **An open-questions ledger that travels with the spec** — every entry tagged and given a status,
   so each downstream stage inherits exactly the decisions it must close.
-- **Whole designs, in parallel** — specified block-by-block, converged where the blocks meet, and
-  written back so the set stays consistent.
+- **Whole designs in parallel, one deliverable per stage** — drafted block-by-block in parallel,
+  then aggregated into a single document (one body, one ledger, one Revision log) at the converge
+  barrier, before any question is resolved — so a resolution is one edit, never a synchronized
+  sweep across files.
 
 ## Using the skills
 
@@ -107,19 +110,30 @@ project at `<project>/.claude/skills/<skill>/`, or for every project at `~/.clau
 ## Status
 
 - **`spec-recovery` — complete and validated.** `SKILL.md`, `references/method.md`, and
-  `references/spec-template.md` are written, mutually consistent, and have been exercised on two
-  unrelated codebases (a MATLAB JPEG pipeline and a Python game).
-- **`hardware-spec` — complete, not yet exercised.** `SKILL.md` and all three references —
+  `references/spec-template.md` are written, mutually consistent, and have been exercised on three
+  unrelated codebases (a MATLAB JPEG pipeline, a Python game, and a Python dual-view image
+  pipeline — the last on two different harnesses). Those runs used the earlier per-block-file
+  schedule; the revised single-document aggregation has not yet been re-exercised.
+- **`hardware-spec` — complete and exercised once.** `SKILL.md` and all three references —
   `references/requirements-checklist.md` (the requirement set and each requirement's convergence
   relation), `references/method.md` (obtaining the parameters, composing the transformations, the
   obligations, and the verify pass), and `references/spec-template.md` (the output skeleton) — are
-  written and mutually consistent. It has not yet been run end to end on a design.
+  written and mutually consistent. Run end to end once, on the dual-view design (concurrent
+  harness); the verify pass confirmed every block and caught one ledger mis-routing.
 
 ## Revision log
 
 Newest first — what changed in this document and why. The sections above always read as the
 current truth; this log is where the history lives.
 
+- `2026-07-14` — Each stage's deliverable is now **one document**, aggregated at the converge
+  barrier; the write-back task is removed. Driven by the first end-to-end runs (Dual View, two
+  harnesses): with per-block specs as deliverables, ledger entries were duplicated across files
+  (one question appearing in up to six documents), so every resolution became a synchronized
+  multi-file sweep, and a write-back agent existed purely to keep the copies consistent (~9% of
+  stage tokens, ~36% of wall clock in the measured run). Fan-out is unchanged — per-block work
+  still parallelizes — but its outputs are now drafts merged at the barrier, *before* the designer
+  conversation; the `pipeline` skill now defines this aggregation point for every stage.
 - `2026-07-13` — Removed the redundant root `PIPELINE.md` pointer; the coordination contract's
   single home is the [`pipeline`](skills/pipeline/) skill.
 - `2026-07-13` — Added `PIPELINE.md`, the library-level coordination contract: task-graph

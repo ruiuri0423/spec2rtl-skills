@@ -114,30 +114,45 @@ choices at once.
 ## Working across a whole design
 
 A reference is often not one file but a whole design — many files, each a block, forming a pipeline.
-Every block deserves the same specification a single one gets, so the hardware can be built up from
-the blocks, bottom-up, against specs that are already clear and connected.
+Every block deserves the same specification a single one gets — but the *deliverable* is still **one
+document**. A design's decisions are shared: one question about a shared partition touches three
+blocks, and if each block carries its own copy of the answer, every resolution becomes a
+synchronized sweep across files. The per-block work therefore produces **drafts** — intermediate
+artifacts that exist to be merged — and the specification the designer reads, resolves, and hands
+downstream is a single file with one ledger and one Revision log.
 
 For a whole design this skill **declares a schedule** and leaves how it runs to the library's
 coordination contract — the `pipeline` skill — stepwise in one context, or concurrently across agents,
 whichever the harness supports; the outputs are identical either way. The schedule is:
 
 1. **Discover** — read the entry point (the driver or top function) to see what the whole design
-   does, identify the blocks it is made of and how they connect, and sketch a first-version
-   top-level spec. These are the software's *own* blocks (its files and functions), not a hardware
-   partition invented here. This task's output determines the fan-out that follows.
-2. **Specify each block** *(independent tasks — one per block)* — run this same procedure, Pass A
-   then Pass B, on that one file, producing that block's spec. Because every task follows the same
-   procedure, the specs come back consistent with one another whether they ran in turn or at once.
-3. **Converge** *(barrier — needs every block spec)* — reconcile the specs where the blocks meet:
-   does one block's output match, in meaning, the next block's input? Here the *related-file* route
-   pays off — a question left open in one block is often answered by a sibling's spec, and a
-   disagreement between two is a conflict to surface. Then fold the confirmed understanding back
-   into the top-level spec. What is still open afterward is a genuine system-level question.
-4. **Write back** *(independent tasks — one per block)* — push the settled results down into each
-   block spec: status lines, closed ledger entries, cross-references. A block is never left "draft,
-   pending" while the system has moved on; the whole set tells one consistent story.
+   does, identify the blocks it is made of and how they connect, and sketch the top-level sections
+   of the specification. These are the software's *own* blocks (its files and functions), not a
+   hardware partition invented here. This task's output determines the fan-out that follows.
+2. **Draft each block** *(independent tasks — one per block)* — run this same procedure, Pass A
+   then Pass B, on that one file, producing that block's **draft**: its sections and its candidate
+   ledger entries. A draft is working material for the barrier, not a deliverable — it may travel
+   as a returned message or a working file, whichever the harness prefers, and it does not survive
+   aggregation as a separate document.
+3. **Aggregate and converge** *(barrier — needs every draft)* — the step that turns many drafts
+   into the one specification, and it happens *here*, before any question is put to the designer,
+   because everything after it is edits, and an edit must have exactly one place to land.
+   Reconcile the drafts where the blocks meet: does one block's output match, in meaning, the next
+   block's input? A question left open in one draft is often answered by a sibling draft, and a
+   disagreement between two is a conflict to surface. Unify the terminology, then assemble the
+   document — the top-level sections first, a per-block section for each block, and **one merged
+   ledger**: entries that are the same question seen from different blocks collapse into a single
+   entry naming the blocks it touches, and cross-file references become section references. What
+   is still open afterward is a genuine question for the designer.
+4. **Resolve with the designer** — the convergent conversation of Pass B, run once, over the single
+   merged ledger. Each answer is folded into the body and logged once; no copy of it exists
+   anywhere else to fall out of date.
 
-If the harness cannot iterate over files at all, do not pretend: specify the one block in hand,
+There is deliberately no write-back task. Write-back existed to keep N documents telling one
+story; with one document the story has one home, and the synchronization cost — which in practice
+rivals the cost of specifying a block — disappears with it.
+
+If the harness cannot iterate over files at all, do not pretend: draft the one block in hand,
 state that it is part of a larger design, and say which schedule tasks remain (see the `pipeline` skill on
 honest degradation).
 

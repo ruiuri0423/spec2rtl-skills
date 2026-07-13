@@ -14,6 +14,12 @@ dedicated fields (the status line, the open-questions ledger, and the Revision l
 never woven into the prose as an aside. Where the reference does not settle something, do not guess:
 write `UNCONFIRMED:` and carry it to the ledger.
 
+For a whole design, this same skeleton is the shape of the **one** deliverable document: the five
+numbered sections describe the design top-level, followed by a per-block section for each block
+carrying the same five headings — and the open-questions ledger and Revision log appear **once, at
+the foot, for the whole design**, never per block. A decision lives in exactly one place; a ledger
+entry that touches several blocks is one entry naming them, not one copy in each.
+
 *Derived from: `<source file>`. Status: draft, pending the open questions below.*
 
 ---

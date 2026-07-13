@@ -48,9 +48,11 @@ half seen.
 One specification document, `<source>.spec.md`, written as prose a person can read start to finish:
 what the block does, its inputs and outputs and what they mean, how it behaves, and an
 **open-questions ledger** of what a human still has to decide. When the reference is a whole design
-of several files, it delivers one such specification per block together with a top-level spec that
-ties them together, all left mutually consistent. What each document should contain is set out in
-`references/spec-template.md`.
+of several files, the deliverable is still **one document** — top-level sections that tie the design
+together, a per-block section for each block, and a single merged ledger and Revision log — so every
+decision has exactly one home. The per-block work happens as parallel drafts, but drafts are
+intermediates: they are aggregated at the converge barrier, before anything is resolved with the
+designer. What the document should contain is set out in `references/spec-template.md`.
 
 ## How it works
 
@@ -65,10 +67,11 @@ The full procedure is in `references/method.md`; in outline:
 - **Carry what stays open as a tagged ledger.** Each open question names the stage that will close
   it, and is resolved with the designer in a convergent conversation, one question at a time, each
   with a recommended answer.
-- **Specify a whole design as a schedule** — discover the blocks, specify each (independent tasks),
-  converge where they meet, write the settled results back. How the schedule runs — stepwise in one
-  context or concurrently across agents — is the harness's choice, governed by the library's
-  coordination contract — the `pipeline` skill; the outputs are identical either way.
+- **Specify a whole design as a schedule** — discover the blocks, draft each in parallel
+  (independent tasks), then aggregate and converge at a barrier into the one deliverable document
+  *before* resolving anything with the designer. How the schedule runs — stepwise in one context or
+  concurrently across agents — is the harness's choice, governed by the library's coordination
+  contract — the `pipeline` skill; the outputs are identical either way.
 - **Record updates in one place** — a Revision log — rather than scattering change-notes through the
   prose.
 
