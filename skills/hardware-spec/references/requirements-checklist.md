@@ -1,0 +1,146 @@
+# requirements-checklist — what to ask the designer
+
+The information that decides the hardware is not in the code. This is the fixed set of questions
+the `hardware-spec` stage asks the designer to supply it, and it is the stage's main input. Ask
+them as a **convergent conversation** — one question at a time, each carrying a sensible default,
+so the designer is choosing rather than starting from a blank page — and record each answer as
+either a **hard constraint** (the system dictates it; the architecture must meet it) or a
+**target** (a goal to approach, traded off against the others). Many of these answers also close a
+`hardware-binding` entry in the functional spec's ledger; note which as you go.
+
+## How this works across models
+
+This stage **drives a model's reasoning** with concrete convergence relations; it does not
+prescribe the shape of the output. Each requirement below carries **the relation that decides it** —
+a formula where one exists, a logical rule otherwise — that turns the requirement and the functional
+spec's own numbers (from its Resources section) into a decision. Reason the relation, then state the
+result and the number it gave. There are no rules here on length or wording, and none are needed:
+the invariants are that every architectural choice **follows from a relation, not from style**, and
+that it is stated **truthfully**. That is what keeps different models converging on the same
+decision, and what lets the result hand forward to the RTL stage as justified numbers rather than
+description.
+
+Two habits keep this honest. First, ask only what you need: if a block plainly meets a requirement
+as a direct mapping of its functional spec, the relation returns "no departure," and that is a
+complete result. Second, wherever a relation forces a departure from the software's structure, name
+the requirement in the spec beside the departure, so cause sits next to effect.
+
+Each requirement below is written as *what to ask*, *a default*, *constraint or target*, and *the
+relation that decides it*.
+
+---
+
+## 1. Throughput — how fast must results come out?
+
+- **Ask:** at what rate must the block accept inputs and produce outputs — samples, blocks, or
+  results per second? Is that rate steady or bursty?
+- **Default:** one result at a time — process an item, finish, take the next — no parallelism.
+- **Usually:** a hard constraint, because the system feeds or drains data at a fixed rate.
+- **The relation that decides it.** Let `C` be the block's natural cost in cycles per result (from
+  its functional-spec Resources). Let the required initiation interval be `II = f_clk / rate` — the
+  cycles you may spend per result (it may be < 1, meaning more than one result per cycle).
+  - `II ≥ C` → the direct mapping already meets it; **no departure** (you may fold up to `⌊II/C⌋`, §4).
+  - `1 ≤ II < C` → **pipeline** the datapath to an initiation interval of `II` (insert registers so a
+    new item starts every `II` cycles).
+  - `II < 1` → **replicate / unfold** the datapath by `⌈1/II⌉` and pipeline each copy.
+  - If a **feedback loop** lies on the path, its iteration bound `T∞` (§2) is a floor on `II`: when
+    `II < T∞`, pipelining cannot reach it — **unfold the loop by `⌈T∞/II⌉`**, or accept the bound.
+
+## 2. Clock — what frequency does it run at?
+
+- **Ask:** is there a target or fixed clock? Is it shared with the surrounding system, or free for
+  this block to choose?
+- **Default:** left open, set with the target technology once throughput and the iteration bound are
+  known.
+- **Either:** hard when the block sits in a fixed clock domain; a target when it may pick its own.
+- **The relation that decides it.** With clock period `T_clk = 1/f` and combinational critical-path
+  delay `t_cp`, the feed-forward path needs **`S = ⌈t_cp / T_clk⌉` pipeline stages** to close timing.
+  A **feedback loop cannot be pipelined across**: its **iteration bound** `T∞ = max over loops (loop
+  computation delay ÷ number of registers in the loop)` is the smallest achievable iteration period.
+  So if the target period is shorter than `T∞` allows for a recursive path, no amount of pipelining
+  helps — the loop must be **unfolded, retimed, or restructured (look-ahead)**, or the clock target
+  on that path lowered.
+
+## 3. Latency — how long from input to output?
+
+- **Ask:** is there a limit on the delay from an input arriving to its result appearing — a
+  real-time deadline, or a cycle budget? Per item, or end to end?
+- **Default:** whatever the natural dataflow gives; no explicit ceiling.
+- **Either:** hard under a real-time deadline; otherwise a target.
+- **The relation that decides it.** Total latency `L_tot ≈ (pipeline depth `S` + folding passes) ×
+  T_clk` must satisfy `L_tot ≤ L_budget`. This **bounds the §1 and §4 choices from the other side**:
+  `S ≤ L_budget / T_clk` limits how deep you may pipeline for clock, and folding (which multiplies
+  latency by its factor `F`) is limited to `F ≤ L_budget / (C · T_clk)`. Where throughput wants deep
+  pipelining or area wants heavy folding and latency forbids it, the spec records the trade and where
+  it landed.
+
+## 4. Area — how much silicon may it spend?
+
+- **Ask:** is there a resource or area budget, or a target device (an FPGA part, an ASIC node)? Is
+  the block one of many sharing it?
+- **Default:** minimize, with no hard ceiling.
+- **Either:** hard when it must fit a device; a target otherwise.
+- **The relation that decides it.** With natural (fully parallel) resource cost `A_nat` and budget
+  `A_bud`, the **fold factor is `F = ⌈A_nat / A_bud⌉`** — reuse one datapath across `F` computations,
+  which divides throughput by `F` and multiplies latency by `F`. The fold is valid only if it still
+  meets the other requirements: **`natural_rate / F ≥ required_rate` (§1)** and **the folded
+  iteration period stays `≥ T∞` on any recursive path** (a feedback loop cannot be folded below its
+  bound). If `F` from area would violate §1, the area target cannot be met at this throughput — a
+  trade to record, not to hide.
+
+## 5. Power — is there a power budget?
+
+- **Ask:** is there a power or energy limit, or a low-power target? Is the block mostly idle or
+  always active?
+- **Default:** no explicit budget; power follows from the area and clock choices.
+- **Usually:** a target rather than a hard constraint.
+- **The relation that decides it (mostly derived).** Dynamic power `P ∝ α · C_load · V² · f` — it has
+  no datapath formula of its own and is driven by activity `α`, switched capacitance `C_load`
+  (≈ area), voltage, and frequency. So unless it is a hard budget, **close it through §2 (lower `f`)
+  and §4 (smaller, folded → less `C_load`)**, and gate the idle regions (activity `α`). If it is a
+  hard budget, it further tightens the `f` and `A` a design may use.
+
+## 6. Interfaces — how does data enter and leave, and how is it controlled?
+
+- **Ask:** for each boundary — data in, data out, control/status — how does it connect (a streaming
+  handshake, a memory-mapped port, a register file)? Who initiates the transfer?
+- **Default:** a streaming data interface with a `valid`/`ready` handshake, and a small register
+  interface for control and status.
+- **Usually:** hard constraints, because they must match the surrounding system exactly.
+- **The relation that decides it (logical, with a numeric part).** The protocol at each boundary must
+  **match the peer exactly** — this is where the functional spec's deferred "what form does the input
+  take" bindings are finally closed. Two mismatches add hardware by rule: if the two sides run at
+  different or bursty rates, insert a **FIFO** of depth `≥ B · (1 − r_c / r_p)` (producer burst `B`,
+  producer rate `r_p` > consumer rate `r_c`) to absorb the mismatch; if the bus width differs from
+  the datum width, add **pack / unpack** logic at the boundary.
+
+## 7. Integration — where does this block live?
+
+- **Ask:** is the block standalone or part of a larger IP/SoC? One clock domain or several? Who
+  drives it — master or slave? What is the reset scheme?
+- **Default:** standalone, a single clock domain, externally driven, synchronous reset.
+- **Usually:** a hard constraint dictated by the system it joins.
+- **The relation that decides it (logical, structural).** With `D` clock domains, **every data path
+  that crosses a domain boundary needs a crossing element** — an asynchronous FIFO for data, a
+  synchronizer for control — so the number of CDC elements follows the number of crossings. A
+  master/slave role and a control/status surface fix the **register map**. And the integration shape
+  drives the **partition**: group logic by clock domain and by interface (this is why partition lives
+  in this stage, not a separate one), and propagate the reset scheme to every block.
+
+---
+
+## Hard constraint versus target
+
+Mark every answer. A **hard constraint** must be met and bounds the design space — a design that
+misses it is invalid. A **target** is approached and traded against the others; when two pull apart
+(throughput up, area up; latency down, throughput down), the relations above make the tension
+explicit, and the spec records where it landed and why. Keeping the two apart is what lets a later
+reader tell a decision that *had* to be made from one that was *chosen*.
+
+## How these shape the architecture
+
+Read together, the relations are the pressure that bends a design away from the plain software
+mapping. Where no relation forces a departure, the block stays a direct mapping and the spec says so.
+Where one does, exactly one transformation answers it, named beside the requirement that forced it,
+with the number the relation gave. The worked reasoning for each transformation — how to find `C`,
+`A_nat`, and the loops that set `T∞`, and how the transformations compose — lives in `method.md`.
