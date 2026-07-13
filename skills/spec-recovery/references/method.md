@@ -94,7 +94,7 @@ that will close it — so it travels to the right place instead of being redisco
 Give each entry a status too — `open`, `resolved`, or `deferred` with a reason — so the ledger
 carries its own history and a downstream stage can inherit exactly the entries tagged for it.
 
-The ledger runs in both directions (`PIPELINE.md` defines the rules): a stage may close only the
+The ledger runs in both directions (the `pipeline` skill defines the rules): a stage may close only the
 entries tagged for it, and a downstream stage that uncovers a *behavioral* question routes it back
 into this spec's ledger rather than deciding it. When that happens, this stage owns the entry:
 resolve it with the designer, update the spec (logging the change in the Revision log), and the
@@ -118,7 +118,7 @@ Every block deserves the same specification a single one gets, so the hardware c
 the blocks, bottom-up, against specs that are already clear and connected.
 
 For a whole design this skill **declares a schedule** and leaves how it runs to the library's
-coordination contract, `PIPELINE.md` — stepwise in one context, or concurrently across agents,
+coordination contract — the `pipeline` skill — stepwise in one context, or concurrently across agents,
 whichever the harness supports; the outputs are identical either way. The schedule is:
 
 1. **Discover** — read the entry point (the driver or top function) to see what the whole design
@@ -138,7 +138,7 @@ whichever the harness supports; the outputs are identical either way. The schedu
    pending" while the system has moved on; the whole set tells one consistent story.
 
 If the harness cannot iterate over files at all, do not pretend: specify the one block in hand,
-state that it is part of a larger design, and say which schedule tasks remain (see `PIPELINE.md` on
+state that it is part of a larger design, and say which schedule tasks remain (see the `pipeline` skill on
 honest degradation).
 
 ---

@@ -76,8 +76,8 @@ obtaining the parameters, composing the transformations, and verifying them — 
   separate pass re-derives the parameters and confirms each cited relation was actually computed.
 - **Stay inside the stage's authority** — this stage closes only the ledger entries tagged for it;
   a behavioral question uncovered here is routed back to the functional spec's ledger, never decided
-  quietly (`PIPELINE.md` defines the routing). How a whole design's schedule runs — stepwise or
-  concurrent — is likewise governed by `PIPELINE.md`.
+  quietly (the `pipeline` skill defines the routing). How a whole design's schedule runs — stepwise or
+  concurrent — is likewise governed by the `pipeline` skill.
 - **Flag, don't fabricate** — a parameter that cannot be obtained is marked open, not guessed.
 
 ## What this skill must not do

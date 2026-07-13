@@ -68,7 +68,7 @@ The full procedure is in `references/method.md`; in outline:
 - **Specify a whole design as a schedule** — discover the blocks, specify each (independent tasks),
   converge where they meet, write the settled results back. How the schedule runs — stepwise in one
   context or concurrently across agents — is the harness's choice, governed by the library's
-  coordination contract, `PIPELINE.md`; the outputs are identical either way.
+  coordination contract — the `pipeline` skill; the outputs are identical either way.
 - **Record updates in one place** — a Revision log — rather than scattering change-notes through the
   prose.
 

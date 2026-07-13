@@ -39,7 +39,7 @@ decided quietly.
 
 How all of this *runs* — schedules of tasks with dependencies, stepwise or concurrent execution,
 barriers, honest degradation on a limited harness, and the two-way ledger routing — is defined once,
-at library level, in [`PIPELINE.md`](PIPELINE.md). The skills declare their schedules; any agent, in
+at library level, in the [`pipeline`](skills/pipeline/) skill. The skills declare their schedules; any agent, in
 any harness, executes them at whatever capability it has.
 
 ```

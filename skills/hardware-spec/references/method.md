@@ -34,12 +34,12 @@ uncovers a question outside those tags — a *behavioral* ambiguity the function
 an interface whose meaning is unclear, a suspected defect in the reference — do not quietly decide
 it here, however obvious the answer seems. Route it back into the functional spec's ledger (tagged
 `behavior` or `reference-defect`, status `open`) for the functional stage and the designer to
-settle, then re-read what this stage depends on. `PIPELINE.md` defines this routing; the obligation
-here is simply: **never resolve what you are not tagged to own.**
+settle, then re-read what this stage depends on. The `pipeline` skill defines this routing; the
+obligation here is simply: **never resolve what you are not tagged to own.**
 
 ## The schedule
 
-For a whole design, this stage declares a schedule and leaves how it runs to `PIPELINE.md` —
+For a whole design, this stage declares a schedule and leaves how it runs to the `pipeline` skill —
 stepwise or concurrent, the outputs are identical: **elicit the requirements** (one convergent
 conversation; its answers feed everything) → **architect each block** *(independent tasks — one per
 block: parameters, relations, stance)* → **verify each block** *(independent — one fresh derivation
