@@ -70,6 +70,17 @@ references — and from then on the single document is the only artifact any tas
 bus below routes entries between *stage documents*, one ledger per stage, never between per-block
 fragments.
 
+**Merging is reconciliation, never summarization.** What aggregation removes is *duplication* — the
+N copies of a shared decision, the per-file status lines and Revision logs, the cross-file
+references. What it must never remove is *substance*: everything in a draft that makes its claims
+checkable — a derivation, an enumeration, the arithmetic behind a cited relation — travels into the
+block's section of the document whole. The test is self-sufficiency: because drafts do not survive,
+**the document must be checkable with the drafts gone**, and a deliverable that states a conclusion
+while pointing at a draft as the home of its detail has destroyed the evidence, not aggregated it.
+A barrier that shrinks the work into a digest has failed the same way a below-floor harness fails
+by faking a full run: less is only honest when it is *reported* as less, and a summary silently
+standing in for the work is not.
+
 ## Two execution modes, one loop
 
 The same schedule runs in either mode; the outputs are identical.

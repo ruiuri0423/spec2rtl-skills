@@ -126,6 +126,15 @@ project at `<project>/.claude/skills/<skill>/`, or for every project at `~/.clau
 Newest first — what changed in this document and why. The sections above always read as the
 current truth; this log is where the history lives.
 
+- `2026-07-14` — Aggregation hardened: **merging is reconciliation, never summarization.** The
+  first A/B re-run of the single-document flow (Dual View, −25% tokens / −44% wall clock, quality
+  findings all reproduced) exposed one regression: the hardware document compressed each block's
+  derivation to its conclusions and cited the non-surviving drafts as the home of the detail —
+  leaving the arithmetic behind every relation uncheckable. The `pipeline` skill now requires the
+  assembled document to be checkable with the drafts gone; hardware-spec's template and method
+  require each block's section to carry the `Parameters:` line *and* its written-out arithmetic,
+  with a form re-check of the assembled document at the barrier; spec-recovery's converge step
+  states that merging removes duplication, never substance.
 - `2026-07-14` — Each stage's deliverable is now **one document**, aggregated at the converge
   barrier; the write-back task is removed. Driven by the first end-to-end runs (Dual View, two
   harnesses): with per-block specs as deliverables, ledger entries were duplicated across files

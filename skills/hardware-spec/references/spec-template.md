@@ -54,9 +54,13 @@ stance rests on, each with its source:
 > (or `none`).
 
 This line is not optional. It is what the verify pass re-derives, and a stance argued without it —
-a relation invoked but never computed — is an impression, not an architecture. After it, record the
-storage the block must hold (the state carried within and across results) and the resolved bit
-widths.
+a relation invoked but never computed — is an impression, not an architecture. Nor does the line
+stand alone: the block's entry carries the **arithmetic behind it, written out** — the enumeration
+that produced `C`, the operation account behind `A_nat`, each cited relation computed to its number
+— because the per-block drafts this document is assembled from do not survive, and this document is
+the only place a reader (or the RTL stage) can check the work. A conclusion whose derivation lives
+nowhere is not shorter; it is unverifiable. After it, record the storage the block must hold (the
+state carried within and across results) and the resolved bit widths.
 
 ## 4. Interfaces
 

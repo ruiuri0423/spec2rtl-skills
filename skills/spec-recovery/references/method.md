@@ -143,7 +143,10 @@ whichever the harness supports; the outputs are identical either way. The schedu
    document — the top-level sections first, a per-block section for each block, and **one merged
    ledger**: entries that are the same question seen from different blocks collapse into a single
    entry naming the blocks it touches, and cross-file references become section references. What
-   is still open afterward is a genuine question for the designer.
+   merging removes is duplication, never substance: each block's sections travel into the document
+   whole — its numeric semantics, its rules, its worked cases — because the drafts do not survive
+   and the document must stand checkable without them. What is still open afterward is a genuine
+   question for the designer.
 4. **Resolve with the designer** — the convergent conversation of Pass B, run once, over the single
    merged ledger. Each answer is folded into the body and logged once; no copy of it exists
    anywhere else to fall out of date.

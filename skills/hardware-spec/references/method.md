@@ -49,8 +49,14 @@ blocks, and the assembly of the drafts into the one architecture document — on
 ledger, one Revision log — with every surfaced question routed to its owner)*. The deliverable is
 that single document; per-block drafts do not survive the barrier, so every later resolution —
 including an answer routed back from the functional stage — lands in exactly one place (the
-`pipeline` skill defines this aggregation point). If the harness cannot iterate over files,
-architect the one block in hand and say which schedule tasks remain.
+`pipeline` skill defines this aggregation point). And because the drafts do not survive, **the
+assembly carries each block's substance into its section whole** — the `Parameters:` line *and* the
+open arithmetic behind every cited relation (the enumerated `C`, the operation account behind
+`A_nat`, the relation computed out to its number). Assembly reconciles and deduplicates; it never
+summarizes: a section that states a stance and points at a draft for the derivation has destroyed
+the evidence the obligations exist to preserve, and the RTL stage inherits an impression it cannot
+check. If the harness cannot iterate over files, architect the one block in hand and say which
+schedule tasks remain.
 
 ## Obtaining the parameters (the recipes)
 
@@ -116,7 +122,10 @@ The verify pass checks form as well as values. In particular: **was each cited r
 computed?** A stance that *invokes* a relation ("II < C, therefore pipeline") without its
 `Parameters:` line and the arithmetic is a finding — the most common way a derivation quietly
 degrades into an impression. It also checks the boundary obligation: any entry resolved here that
-carries a tag this stage does not own is flagged for re-routing, not accepted.
+carries a tag this stage does not own is flagged for re-routing, not accepted. And the same form
+check runs once more over the **assembled document** at the barrier — assembly is where derivations
+are most easily lost, so a block section whose stance survived but whose arithmetic did not is a
+finding against the assembly, not the draft.
 
 Because this re-derivation runs as its own agent — and, for the load-bearing numbers, can run more
 than once — the guarantee does not rest on any single model call being right. It rests on the
