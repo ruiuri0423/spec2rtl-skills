@@ -112,14 +112,18 @@ project at `<project>/.claude/skills/<skill>/`, or for every project at `~/.clau
 - **`spec-recovery` — complete and validated.** `SKILL.md`, `references/method.md`, and
   `references/spec-template.md` are written, mutually consistent, and have been exercised on three
   unrelated codebases (a MATLAB JPEG pipeline, a Python game, and a Python dual-view image
-  pipeline — the last on two different harnesses). Those runs used the earlier per-block-file
-  schedule; the revised single-document aggregation has not yet been re-exercised.
+  pipeline — the last on two different harnesses). The single-document aggregation flow has been
+  A/B-validated against the per-block-file baseline on the dual-view design: with the
+  carry-substance rule in force, −14% tokens and −37% wall clock versus baseline, all quality
+  findings reproduced, and the assembled documents pass the barrier form-check.
 - **`hardware-spec` — complete and exercised once.** `SKILL.md` and all three references —
   `references/requirements-checklist.md` (the requirement set and each requirement's convergence
   relation), `references/method.md` (obtaining the parameters, composing the transformations, the
   obligations, and the verify pass), and `references/spec-template.md` (the output skeleton) — are
-  written and mutually consistent. Run end to end once, on the dual-view design (concurrent
-  harness); the verify pass confirmed every block and caught one ledger mis-routing.
+  written and mutually consistent. Run end to end three times on the dual-view design (concurrent
+  harness; once per-block-file, twice single-document); the verify pass confirmed every block each
+  run, caught one ledger mis-routing, and — as the barrier form-check — confirmed the assembled
+  document carries every derivation.
 
 ## Revision log
 
