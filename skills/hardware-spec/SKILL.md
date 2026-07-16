@@ -82,8 +82,10 @@ obtaining the parameters, composing the transformations, and verifying them — 
 
 ## What this skill must not do
 
-It does not write RTL and does not choose the micro-architecture — pipeline depth, scheduling,
-register placement, FSM encoding — which belong to the RTL stage. It does not re-derive the
+It does not write RTL and does not choose the micro-architecture — which belongs to the stages that
+follow: the structural, budget-bearing choices (pipeline depth, scheduling, search structures) to
+`block-spec`, the coding-level ones (register placement, FSM encoding) to the RTL stage beyond it.
+It does not re-derive the
 functional spec; it reads it. It adds no architecture that no requirement asks for. And it does not
 fabricate a parameter to make a relation fire: where the input cannot be obtained, the decision
 stays open.

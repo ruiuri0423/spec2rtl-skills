@@ -20,10 +20,22 @@ that it is stated **truthfully**. That is what keeps different models converging
 decision, and what lets the result hand forward to the RTL stage as justified numbers rather than
 description.
 
-Two habits keep this honest. First, ask only what you need: if a block plainly meets a requirement
+Three habits keep this honest. First, ask only what you need: if a block plainly meets a requirement
 as a direct mapping of its functional spec, the relation returns "no departure," and that is a
 complete result. Second, wherever a relation forces a departure from the software's structure, name
-the requirement in the spec beside the departure, so cause sits next to effect.
+the requirement in the spec beside the departure, so cause sits next to effect. Third — for **every**
+requirement, clock and interfaces no more or less than area and power — **read the answer back
+before you pin it**: restate the designer's answer in your own words, as an interpretation with its
+architectural consequences made explicit ("I take this to mean the data path crosses two clock
+domains, so CDC sits on the data path itself"), and let the designer confirm or correct the
+restatement before it is recorded as a constraint. What the designer said and what the agent
+understood are not the same thing, and the gap between them — an invented clock domain, an assumed
+elastic interface — becomes architecture the moment it is written down as HARD. The read-back is
+where such inventions die cheaply, one sentence early instead of one stage late. Two rules make a
+read-back worth its name: **state numbers, units, and owners** — a clock is read back with its
+numeric frequency *and what it clocks*, a rate with the unit of work it counts — and **never anchor
+on figures from a superseded document**: restate from the designer's words alone, or the old number
+quietly survives the correction wearing a new label.
 
 Each requirement below is written as *what to ask*, *a default*, *constraint or target*, and *the
 relation that decides it*.
@@ -36,6 +48,12 @@ relation that decides it*.
   results per second? Is that rate steady or bursty?
 - **Default:** one result at a time — process an item, finish, take the next — no parallelism.
 - **Usually:** a hard constraint, because the system feeds or drains data at a fixed rate.
+- **The rate that binds is instantaneous, never average.** Under a streaming discipline that forbids
+  backpressure, `rate` is the **formation rate of the unit of work during a burst** — how many units
+  become computable per cycle while the stream delivers — not the long-term average. An average
+  smuggles in the elastic buffer the discipline forbids. Note too that the unit of work may not be
+  the interface's delivery unit (a beat of adjacent pixels is not a mirror-pair); when they differ,
+  the formation rate comes from the formation *schedule*, derived in `method.md`.
 - **The relation that decides it.** Let `C` be the block's natural cost in cycles per result (from
   its functional-spec Resources). Let the required initiation interval be `II = f_clk / rate` — the
   cycles you may spend per result (it may be < 1, meaning more than one result per cycle).
@@ -49,7 +67,10 @@ relation that decides it*.
 ## 2. Clock — what frequency does it run at?
 
 - **Ask:** is there a target or fixed clock? Is it shared with the surrounding system, or free for
-  this block to choose?
+  this block to choose? And for **every named frequency: what does it clock** — which interfaces,
+  which logic? A frequency without an owner is an unfinished answer, and the gap gets filled by
+  invention (a "video clock" read back without its number and its owner became a fabricated compute
+  domain once).
 - **Default:** left open, set with the target technology once throughput and the iteration bound are
   known.
 - **Either:** hard when the block sits in a fixed clock domain; a target when it may pick its own.
@@ -103,16 +124,24 @@ relation that decides it*.
 ## 6. Interfaces — how does data enter and leave, and how is it controlled?
 
 - **Ask:** for each boundary — data in, data out, control/status — how does it connect (a streaming
-  handshake, a memory-mapped port, a register file)? Who initiates the transfer?
-- **Default:** a streaming data interface with a `valid`/`ready` handshake, and a small register
-  interface for control and status.
+  interface, a memory-mapped port, a register file)? Who initiates the transfer? **May the design
+  exert backpressure on its input, and may its output stall — or must the stream flow
+  unconditionally?** This is a fork that shapes everything downstream (elastic buffering versus
+  static scheduling) and it is **asked, never defaulted**. And for each direction: the width per
+  beat and the width per datum (a transport width is not the computation domain — §how the two map
+  is part of the answer).
+- **Default:** a small register interface for control and status. The data-side discipline
+  (unconditional stream versus handshake) has **no default** — it is the designer's fork.
 - **Usually:** hard constraints, because they must match the surrounding system exactly.
 - **The relation that decides it (logical, with a numeric part).** The protocol at each boundary must
   **match the peer exactly** — this is where the functional spec's deferred "what form does the input
-  take" bindings are finally closed. Two mismatches add hardware by rule: if the two sides run at
-  different or bursty rates, insert a **FIFO** of depth `≥ B · (1 − r_c / r_p)` (producer burst `B`,
-  producer rate `r_p` > consumer rate `r_c`) to absorb the mismatch; if the bus width differs from
-  the datum width, add **pack / unpack** logic at the boundary.
+  take" bindings are finally closed. Two mismatches add hardware by rule. Rate mismatch: where the
+  discipline **permits backpressure**, insert a **FIFO** of depth `≥ B · (1 − r_c / r_p)` (producer
+  burst `B`, producer rate `r_p` > consumer rate `r_c`); where it **forbids** backpressure, the
+  mismatch is closed by a **statically scheduled delay line** — its schedule derived and simulated
+  per `method.md`, never an elastic element. Width mismatch: **pack / unpack** logic at the boundary,
+  with the conversion into the computation domain resolved from the reference model's own convention
+  (cited by line), because the model is authoritative on the domain arithmetic runs in.
 
 ## 7. Integration — where does this block live?
 

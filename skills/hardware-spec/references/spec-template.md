@@ -58,22 +58,31 @@ a relation invoked but never computed — is an impression, not an architecture.
 stand alone: the block's entry carries the **arithmetic behind it, written out** — the enumeration
 that produced `C`, the operation account behind `A_nat`, each cited relation computed to its number
 — because the per-block drafts this document is assembled from do not survive, and this document is
-the only place a reader (or the RTL stage) can check the work. A conclusion whose derivation lives
-nowhere is not shorter; it is unverifiable. After it, record the storage the block must hold (the
-state carried within and across results) and the resolved bit widths.
+the only place a reader (or a downstream stage) can check the work. A conclusion whose derivation lives
+nowhere is not shorter; it is unverifiable. After it, record the storage the block must hold — **as
+physical organization** (macros with ports, banks, word width and what one word is, and the domain
+of the stored values), never as a live-data peak, with the access windows shown disjoint (simulated)
+wherever a single port is claimed — and the resolved bit widths.
 
 ## 4. Interfaces
 
 The concrete protocol at each boundary — the data in, the data out, and control/status — closing the
-functional spec's deferred transport bindings: the handshake or memory map, the direction, the
-width, and any FIFO (with its depth) or clock-domain-crossing element the rate or domain mismatch
-required.
+functional spec's deferred transport bindings: the streaming discipline the designer answered
+(unconditional stream or handshake — as elicited, never defaulted), the direction, the width per
+beat, and whatever element the rate or domain mismatch required — an elastic FIFO (with its depth)
+only where backpressure is permitted, a statically scheduled delay line (with its simulated
+schedule) where it is not, a crossing element per clock-domain boundary. State the transport width
+and the computation domain separately, with the conversion between them resolved from the reference
+model's own convention and cited by line: the designer owns the transport, the model owns the
+domain.
 
 ## Open questions (ledger)
 
-What this stage leaves open — now the micro-architectural choices deferred to the RTL stage, plus
-any requirement conflict recorded as a trade rather than fudged. Give each entry a tag and a status,
-the same as the functional spec's ledger, so the RTL stage inherits exactly what it must close.
+What this stage leaves open — now the micro-architectural choices deferred onward: the structural,
+budget-bearing ones (pipeline depth, scheduling, search structures) tagged `micro-arch` for the
+block-spec stage, the coding-level ones tagged for the RTL stage beyond it — plus any requirement
+conflict recorded as a trade rather than fudged. Give each entry a tag and a status, the same as
+the functional spec's ledger, so each downstream stage inherits exactly what it must close.
 
 ## Revision log
 

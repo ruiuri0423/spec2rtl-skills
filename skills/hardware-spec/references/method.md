@@ -16,8 +16,13 @@ parameter and decision:
 
 1. **Follow the recipe, don't eyeball.** Obtain each parameter (`C`, `A_nat`, the loops that set
    `T∞`) by the checkable procedure below, not by impression.
-2. **Compute in the open.** Evaluate a relation with a tool where the agent has one; otherwise write
-   the arithmetic out step by step. Never hide it in mental math.
+2. **Compute in the open — and simulate what arithmetic cannot settle.** Evaluate a relation with a
+   tool where the agent has one; otherwise write the arithmetic out step by step. Never hide it in
+   mental math. A claim about a *schedule* — when units of work form, whether buffer access windows
+   collide, where an occupancy peaks — is beyond inspection: verify it by **cycle-accurate
+   simulation** (a short script over the arrival/consumption equations), and carry the result into
+   the document like any computed number. An off-by-one in a schedule is a real hardware bug; eyes
+   do not catch it, simulation does.
 3. **Show the derivation and its source.** State each parameter with how it was derived and where it
    came from — which functional-spec section, or which elicited requirement.
 4. **Flag, don't fabricate.** If a parameter cannot be obtained reliably, mark it `UNCONFIRMED` or
@@ -37,6 +42,16 @@ it here, however obvious the answer seems. Route it back into the functional spe
 settle, then re-read what this stage depends on. The `pipeline` skill defines this routing; the
 obligation here is simply: **never resolve what you are not tagged to own.**
 
+Two authorities flank the stage, and each is final on its own ground. **The designer** owns the
+requirements and the trades — and may overturn a drafted stance mid-stage: a designer challenge
+("your buffering costs more than the multipliers it saves") triggers **re-derivation at the
+challenge's level of rigor**, never a defense of the draft; if the re-derivation agrees, the stance
+flips and the designer's decision is recorded with a date. Facts the designer pins from experience
+— a memory organization, a word width — are recorded as pinned, with the designer named. **The
+reference model** owns the computation: the domain arithmetic runs in, and every conversion into
+that domain, resolve from the model's own conventions, cited by line — a transport width the
+designer supplies never redefines the domain the model computes in.
+
 ## The schedule
 
 For a whole design, this stage declares a schedule and leaves how it runs to the `pipeline` skill —
@@ -54,8 +69,8 @@ assembly carries each block's substance into its section whole** — the `Parame
 open arithmetic behind every cited relation (the enumerated `C`, the operation account behind
 `A_nat`, the relation computed out to its number). Assembly reconciles and deduplicates; it never
 summarizes: a section that states a stance and points at a draft for the derivation has destroyed
-the evidence the obligations exist to preserve, and the RTL stage inherits an impression it cannot
-check. If the harness cannot iterate over files, architect the one block in hand and say which
+the evidence the obligations exist to preserve, and the downstream stages inherit an impression
+they cannot check. If the harness cannot iterate over files, architect the one block in hand and say which
 schedule tasks remain.
 
 ## Obtaining the parameters (the recipes)
@@ -84,6 +99,21 @@ architecture, it is an impression.
   its `T∞` is that adder's delay, and it caps how fast the DC path can go.)*
 - **`f_clk`, `rate`, `A_bud`, `L_budget`, interface rates and widths** come from the requirements
   (elicited), not the spec — mark each as the hard constraint or target it was recorded as.
+- **The unit of work, and its formation schedule.** The algorithm's unit of work is often not the
+  interface's delivery unit (a beat of adjacent same-view pixels is not a mirror-pair). When they
+  differ, derive the **formation schedule** before any throughput relation fires: from the delivery
+  order, when does each unit become computable, and at what instantaneous rate do units form during
+  a burst? That formation rate — not the interface rate, not the long-term average — is the `rate`
+  the §1 relation consumes; and the schedule itself (with the buffering it implies) is part of the
+  architecture, verified by cycle-accurate simulation like any schedule claim.
+- **Storage, stated as physical organization.** Any memory the architecture claims is specified as
+  macros — ports, banks, word width, and what one word *is* (usually one interface beat) — plus the
+  domain of the stored values (raw transport-width data before conversion stores narrower than the
+  computation domain). **Never budget storage at live-data peaks**: two buffers of equal peak
+  occupancy differ by 2–3× physically once same-cycle access windows force ping-pong or a second
+  port, so prove the windows disjoint (simulate them) or pay for the organization that survives the
+  collision. This accounting decided an engine-rate stance once — at live-data peaks one plan looked
+  smaller; at physical organization the other was a third the size.
 
 ## Composing the transformations
 
@@ -106,6 +136,14 @@ If the constraints are jointly infeasible — the throughput needs more than the
 clock target is below a loop's bound — that is a real finding to report as a trade, with the numbers
 that show the conflict. It is never something to fudge into looking solved.
 
+When two stances genuinely compete — two schedules, two engine rates, two structures that both meet
+the requirements — **the loser is rejected only on accounting of the same rigor as the winner's**,
+and that accounting is recorded beside the rejection. A rejection argued on a shallower ledger than
+the adoption (live-data bits against physical macros, average rate against burst rate) is not a
+decision, it is a coin toss that happened to land — and it is exactly the kind the designer will
+later overturn. Presenting both accounts at equal depth is also what makes the trade *challengeable*,
+which is the point: the designer decides trades, and can only decide what they can check.
+
 Record each resulting choice beside the requirement whose relation forced it, with the number the
 relation produced. Where no relation forced a departure, the block stays a direct mapping and the
 spec says so.
@@ -121,11 +159,15 @@ parameters and decisions survive re-derivation is passed on; a mismatch is surfa
 The verify pass checks form as well as values. In particular: **was each cited relation actually
 computed?** A stance that *invokes* a relation ("II < C, therefore pipeline") without its
 `Parameters:` line and the arithmetic is a finding — the most common way a derivation quietly
-degrades into an impression. It also checks the boundary obligation: any entry resolved here that
-carries a tag this stage does not own is flagged for re-routing, not accepted. And the same form
-check runs once more over the **assembled document** at the barrier — assembly is where derivations
-are most easily lost, so a block section whose stance survived but whose arithmetic did not is a
-finding against the assembly, not the draft.
+degrades into an impression. Three further checks, each bought by a real failure: **was every
+schedule claim simulated** (not inspected — an unsimulated schedule once shipped an off-by-one in
+the constant a delay pipe is built to)? **Is every storage claim stated as physical organization**
+(a live-data-peak budget is a finding)? **Was every rejected alternative rejected at the winner's
+rigor** (a shallow rejection is re-opened, not accepted)? It also checks the boundary obligation:
+any entry resolved here that carries a tag this stage does not own is flagged for re-routing, not
+accepted. And the same form check runs once more over the **assembled document** at the barrier —
+assembly is where derivations are most easily lost, so a block section whose stance survived but
+whose arithmetic did not is a finding against the assembly, not the draft.
 
 Because this re-derivation runs as its own agent — and, for the load-bearing numbers, can run more
 than once — the guarantee does not rest on any single model call being right. It rests on the
