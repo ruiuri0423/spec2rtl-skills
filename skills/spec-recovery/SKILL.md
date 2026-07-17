@@ -52,7 +52,11 @@ of several files, the deliverable is still **one document** — top-level sectio
 together, a per-block section for each block, and a single merged ledger and Revision log — so every
 decision has exactly one home. The per-block work happens as parallel drafts, but drafts are
 intermediates: they are aggregated at the converge barrier, before anything is resolved with the
-designer. What the document should contain is set out in `references/spec-template.md`.
+designer. When the design is headed to hardware, the document closes with a **hardware-ization
+scope** section — which parts of the reference go to hardware, and how that hardware is expected to
+sit in the surrounding system — settled with the designer as the stage's closing conversation, so
+the hardware stage inherits its scope instead of re-deriving it. What the document should contain
+is set out in `references/spec-template.md`.
 
 ## How it works
 
@@ -67,6 +71,12 @@ The full procedure is in `references/method.md`; in outline:
 - **Carry what stays open as a tagged ledger.** Each open question names the stage that will close
   it, and is resolved with the designer in a convergent conversation, one question at a time, each
   with a recommended answer.
+- **End by scoping the hardware.** Once the behavior has converged, two closing questions to the
+  designer: which parts of the reference are to be **hardware-ized** (and which stay software — the
+  test harness, file I/O, golden dumping never are), and how the hardware-ized part **connects to
+  the surrounding architecture** (who feeds it, who consumes it, who configures it). Asked here
+  because this is the moment both parties understand the behavior best; recorded in the scope
+  section and inherited by the hardware stage.
 - **Specify a whole design as a schedule** — discover the blocks, draft each in parallel
   (independent tasks), then aggregate and converge at a barrier into the one deliverable document
   *before* resolving anything with the designer. How the schedule runs — stepwise in one context or

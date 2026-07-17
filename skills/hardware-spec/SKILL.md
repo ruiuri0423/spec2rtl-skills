@@ -31,17 +31,25 @@ relations and are stated truthfully.
 
 ## What this skill does
 
-It elicits the hardware requirements the algorithm cannot supply, resolves the functional spec's
-deferred bindings and its undefined-for-hardware points against them, and works out the architecture
-each block needs — the parallelism, the folding, the feedback storage, the interfaces — together
-with how the design partitions into hardware blocks. Every decision is recorded beside the
-requirement that drove it and the number its relation produced, so no piece of hardware appears
-without its reason.
+It works in two phases, **boundary first**. **Phase A — the hardware frame's interface contract:**
+starting from the functional spec's hardware-ization scope, enumerate every input and output of the
+hardware frame — data, configuration, status, clocks, resets — name the part of the functional spec
+each one serves, and elicit each port's concrete properties from the designer: width per beat and
+the unit it carries, rate and streaming discipline (backpressure asked, never defaulted), clock
+ownership, update discipline — plus the frame-level targets no port carries (area, power) and the
+frame's in-to-out latency. Nothing internal is decided here. **Phase B — the blocks and their
+chaining:** inside the settled boundary, decide which hardware blocks realize which parts of the
+spec, how they chain, and what the chaining alone demands — parallelism, storage, scheduling —
+**quantified** with the convergence relations. Every decision is recorded beside the requirement
+that drove it and the number its relation produced, so no piece of hardware appears without its
+reason.
 
 ## What this skill reads
 
 It reads the functional specification from spec-recovery — one document, with its top-level and
-per-block sections — and above all its **open-questions ledger**: the entries tagged `hardware-binding` and
+per-block sections — starting from its **hardware-ization scope section** (which parts are in
+scope, and the system context Phase A's boundary definition begins from) and above all its
+**open-questions ledger**: the entries tagged `hardware-binding` and
 `must-define-for-hardware` are this stage's inbox to close. Each block's *Resources* section — what
 it holds, what it computes, the ranges its values take — is the raw material for the parameters the
 relations need. What the spec cannot supply — throughput, clock, latency, area, power, interfaces,
@@ -63,12 +71,19 @@ The requirement set is in `references/requirements-checklist.md`; the full reaso
 obtaining the parameters, composing the transformations, and verifying them — is in
 `references/method.md`. In outline:
 
-- **Elicit the requirements** — a fixed checklist (throughput, clock, latency, area, power,
-  interfaces, integration), asked as a convergent conversation, each answer marked a hard constraint
-  or a target.
-- **Set each block's stance, defaulting to follow-software**, and depart only where a requirement's
-  relation forces it — parallelize or fold, add feedback storage bounded by the iteration bound,
-  define a protocol at each interface — naming the requirement and the number beside the departure.
+- **Phase A: define the boundary.** Enumerate the frame's ports; for each, the functional-spec part
+  it serves and its designer-elicited properties — asked as concrete facts of a concrete port (the
+  checklist gives the per-port property sheet), never as abstract quantities framed by the
+  reference. A **reconcile step** cross-checks the answers once against reference-implied figures
+  (computed afterwards, provenance labeled — a cross-check, never an anchor) before the contract is
+  pinned. The settled contract is Phase A's barrier: nothing internal starts before it.
+- **Phase B: set each block's stance within the boundary, defaulting to follow-software**, and
+  depart only where a requirement's relation forces it — parallelize or fold, add feedback storage
+  bounded by the iteration bound, close each boundary port's transport — naming the requirement and
+  the number beside the departure.
+- **Phase B may reopen Phase A.** When quantification proves a port property infeasible — a rate
+  against an iteration bound, a width against an area reality — the port is reopened through the
+  ledger *with the numbers*, renegotiated with the designer, never silently adjusted.
 - **Partition into hardware blocks**, which need not match the software blocks, following from the
   transformations above.
 - **Show, compute in the open, and verify** — every block opens with a checkable `Parameters:` line

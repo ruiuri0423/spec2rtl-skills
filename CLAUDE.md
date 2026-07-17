@@ -19,14 +19,23 @@ folder into `<project>/.claude/skills/` or `~/.claude/skills/`.
 
 - `spec-recovery` (Understand) — reads a reference model (MATLAB / C / C++ / Python) and recovers a
   plain-language functional spec, deferring every hardware/representational choice (bit widths,
-  ordering, interfaces). Complete and validated.
-- `hardware-spec` (Architect) — turns that functional spec plus designer-elicited requirements into
-  a hardware architecture spec, departing from the software mapping only where a requirement forces
-  it. Complete, not yet exercised end to end.
+  ordering, interfaces). Closes with two hardware-ization scope questions (what goes to hardware;
+  how it sits in the surrounding system). Complete and validated.
+- `hardware-spec` (Architect) — two phases, boundary first: Phase A defines the frame's interface
+  contract (ports enumerated from the scope section; per-port property sheet elicited as facts,
+  reference figures only at a post-answer reconcile step); Phase B architects blocks and chaining
+  within the settled boundary, quantified by the convergence relations, with a ledger reopen path
+  back to the contract. Complete, validated on the dual-view design.
+- `block-spec` (Detail) — decomposes each hardware block into sub-modules, each with a functional
+  contract, a top-down PPA budget that must sum (`Budget:` line, analog of hardware-spec's
+  `Parameters:`), and a verification obligation named before any code exists — so RTL is built and
+  verified bottom-up. Tools (DSLs, generators, synthesis probes) are instruments for evidence, never
+  part of the delivered flow: deliverables are human-maintainable documents and source. Complete,
+  not yet exercised.
 - `pipeline` — not a work stage but the library-level **coordination contract**: schedules as task
   graphs (tasks, dependencies, barriers), one execution loop that runs identically stepwise or
   concurrently, honest degradation on limited harnesses, and the ledger routing rules.
-- Planned, not present: `rtl-gen`, `review`, `verify`.
+- Planned, not present: `rtl-gen` (block specs → RTL), `review`, `verify`.
 
 ## The load-bearing interface: the open-questions ledger
 

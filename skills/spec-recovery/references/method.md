@@ -109,6 +109,23 @@ code or the domain — and as each is answered, move it out of the ledger and in
 designer reaches a trustworthy spec through a short series of small, clear decisions, never a wall of
 choices at once.
 
+### Closing: the hardware-ization scope
+
+When the design is headed to hardware, the stage ends with two more questions to the designer —
+asked now, while the behavior is freshest in both minds:
+
+1. **What is to be hardware-ized?** Walk the spec's blocks and mark each in scope or out (reference
+   models routinely interleave the algorithm with its harness — file I/O, golden dumping, test
+   iteration — and the harness is never hardware). The result is a scope list, not a partition: it
+   names *what* goes to hardware, never *how* it is organized there.
+2. **How does the hardware-ized part sit in the surrounding architecture?** Who produces its input,
+   who consumes its output, who configures it, and in what form — the system context the hardware
+   stage's boundary definition will start from.
+
+Record both in the spec's hardware-ization scope section (the template provides it), each point
+traceable to the designer's answer. The hardware stage inherits this scope and context as its
+starting input; a scope question discovered later routes back here like any behavioral question.
+
 ---
 
 ## Working across a whole design

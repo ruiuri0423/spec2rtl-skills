@@ -2,7 +2,7 @@
 name: pipeline
 description: >
   The coordination contract for the spec2rtl skill library. Use it to run a whole design through
-  the stages (spec-recovery, then hardware-spec): it defines how work is scheduled as a task graph,
+  the stages (spec-recovery, hardware-spec, then block-spec): it defines how work is scheduled as a task graph,
   executed stepwise or concurrently with one invariant loop, degraded honestly on a limited harness,
   and how stages talk through the two-way ledger bus. Invoke it when orchestrating multiple blocks
   or multiple stages, when deciding what to run next, or when a question must be routed between
@@ -42,13 +42,17 @@ exotic than that:
   synchronize.
 
 Schedules are **discovered, not fixed**: the first task is usually exploratory (read the entry
-point, list the blocks; elicit the requirements), and its output determines the fan-out that
+point, list the blocks; define the boundary), and its output determines the fan-out that
 follows. Draw the schedule as far as it is known, execute, extend.
 
 Each skill declares its own schedule in its `method.md` — spec-recovery declares
 *discover → draft each block (independent) → aggregate and converge (barrier) → resolve with the
-designer*; hardware-spec declares *elicit → per-block architecture drafts (independent) → verify
-each block (independent, after its draft) → partition, aggregate, and converge (barrier)*. This
+designer*; hardware-spec declares *define the boundary (per-port elicitation + reconcile) →
+interface-contract barrier → per-block architecture drafts (independent) → verify each block
+(independent, after its draft) → partition, aggregate, and converge (barrier)*, with a reopen path
+from quantification back to the contract;
+block-spec declares *decompose-and-budget each hardware block (independent) → verify each
+(independent, after its draft) → aggregate and converge (barrier)*. This
 skill is how any such declaration is executed.
 
 ## Drafts, deliverables, and the aggregation point
@@ -121,7 +125,10 @@ Two rules govern it:
 1. **A stage may close only the entries tagged for it.** hardware-spec closes `hardware-binding` and
    `must-define-for-hardware`; `behavior` and `reference-defect` belong to the functional stage and
    the designer. The tags are permissions, not decoration — a stage that resolves an entry outside
-   its tags has silently crossed a boundary it had no authority to cross.
+   its tags has silently crossed a boundary it had no authority to cross. The tag set extends
+   downstream the same way: hardware-spec's ledger defers the structural micro-architecture entries
+   (`micro-arch`) to block-spec, and block-spec defers `implementation` entries to the RTL stage —
+   always the same rule: a tag names the one stage with authority to close the entry.
 2. **A stage that uncovers a question it cannot close routes it to its owner.** Downstream: an
    architectural spec defers micro-architecture to the RTL stage through its own ledger. Upstream: if
    hardware work exposes a *behavioral* ambiguity — an interface whose meaning the functional spec

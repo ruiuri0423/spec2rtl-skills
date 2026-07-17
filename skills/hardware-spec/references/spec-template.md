@@ -20,12 +20,17 @@ questions below.*
 
 ---
 
-## 1. Requirements
+## 1. The hardware frame's interface contract (Phase A)
 
-The requirements elicited from the designer, each marked a **hard constraint** or a **target** —
-throughput, clock, latency, area or target device, power, the interfaces in and out, and the
-integration context. These are the inputs that shaped everything below; record the actual answers,
-not the questions, and note which functional-spec `hardware-binding` entries each answer closes.
+Every input and output of the frame — data, configuration, status, clocks, resets — one entry per
+port: the functional-spec part it serves, and its designer-elicited properties (width per beat and
+the unit it carries, rate and streaming discipline, backpressure, clock owner by numeric frequency,
+update discipline), each marked **hard** or **target**. Then the frame-level items no port carries
+— area and power — and the frame's in-to-out latency. Record the reconcile step's outcome: the
+reference-implied figures with their provenance, and how any difference was settled. Note which
+functional-ledger `hardware-binding` entries each port closes. Nothing internal appears here: this
+section is the contract Phase B architects within, and the only place a later quantified
+infeasibility may reopen — through the ledger, with its numbers, never by silent adjustment.
 
 ## 2. Architecture overview
 

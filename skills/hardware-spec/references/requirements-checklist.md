@@ -1,12 +1,46 @@
-# requirements-checklist — what to ask the designer
+# requirements-checklist — the boundary, asked port by port
 
-The information that decides the hardware is not in the code. This is the fixed set of questions
-the `hardware-spec` stage asks the designer to supply it, and it is the stage's main input. Ask
-them as a **convergent conversation** — one question at a time, each carrying a sensible default,
-so the designer is choosing rather than starting from a blank page — and record each answer as
-either a **hard constraint** (the system dictates it; the architecture must meet it) or a
-**target** (a goal to approach, traded off against the others). Many of these answers also close a
-`hardware-binding` entry in the functional spec's ledger; note which as you go.
+The information that decides the hardware is not in the code — and it is not abstract either: it
+lives on the **boundary** of the hardware frame, as concrete properties of concrete ports. So
+Phase A does not ask "what is the throughput?" into the air; it **enumerates the frame's inputs
+and outputs** — data in, data out, configuration, status, clocks, resets, starting from the
+functional spec's hardware-ization scope — and asks, per port, the property sheet below. Asked
+this way, the elicitation is **complete by construction** (every port gets every applicable
+property; no single item is "the highlighted question") and it does not anchor: a port's width,
+discipline, or clock owner is a fact the designer owns directly, needing no framing from the
+reference. Record every answer as a **hard constraint** or a **target**; many close a
+`hardware-binding` entry in the functional ledger — note which as you go.
+
+Three kinds of question take three forms, and this file serves the first. **Facts** about the
+boundary are gathered by **enumeration** — the full port list and property sheet, visible at once;
+a fact the designer cannot supply is OPEN, and a category's default applies only after an explicit
+"unconstrained", never in place of an answer. **Evidence** questions (what the reference means)
+belong to spec-recovery and converge one at a time with a recommended reading. **Trades** (two
+defensible stances) are adjudicated one at a time in Phase B, both accounts at equal rigor.
+Reference-implied figures enter only at the **reconcile step**, after the designer has answered:
+computed from the functional spec, labeled with provenance, and diffed against the answers ("you
+said X; the reference implies Y — is the difference intended?") — a cross-check, never an anchor.
+
+## The per-port property sheet (Phase A)
+
+For every enumerated port or port-group, elicit:
+
+- **What it serves** — the functional-spec part this port realizes or configures (traceability).
+- **Direction, width per beat, and the unit a beat carries** — a transport width is not the
+  computation domain; the conversion between them resolves from the reference model's own
+  convention, cited by line.
+- **Rate and discipline** — the instantaneous rate that binds (formation/burst, never average), and
+  whether the port may exert or suffer **backpressure** — asked, never defaulted.
+- **Clock ownership** — which clock the port belongs to, by numeric frequency and owner.
+- **Update discipline** (configuration ports) — when values may change relative to the data stream:
+  shadowing, commit points.
+- **Hard or target**, marked per property.
+
+Two frame-level items no port carries — **area** and **power** — are asked once, as properties of
+the frame; **latency** is the frame's in-to-out property, asked alongside the data ports. The seven
+categories below remain as the **property definitions and their convergence relations**: Phase A
+elicits each property on the boundary; Phase B fires the relation when quantifying the architecture
+against it.
 
 ## How this works across models
 

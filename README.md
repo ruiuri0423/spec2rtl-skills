@@ -21,8 +21,9 @@ introduces exactly the structure the task demands and no more.
 |---|---|---|
 | [`spec-recovery`](skills/spec-recovery/) | Understand | Reads a reference model (MATLAB / C / C++ / Python) and recovers a plain-language functional specification — what the design does, its real inputs and outputs, its behavior — before any hardware work, deferring every representational choice. |
 | [`hardware-spec`](skills/hardware-spec/) | Architect | Turns that functional spec, plus the **designer's** hardware requirements, into a hardware architecture specification — resolving the deferred bindings and introducing only the parallelism, folding, storage, and interfaces a requirement demands. |
+| [`block-spec`](skills/block-spec/) | Detail | Decomposes each hardware block into sub-modules, giving every sub-module a functional contract and an explicit top-down PPA budget — timing, throughput, area, state — plus a verification obligation named before any code exists, so RTL can be written and verified bottom-up. |
 
-Planned, not yet in the library: **rtl-gen** (architecture → RTL), **review**, **verify**.
+Planned, not yet in the library: **rtl-gen** (block specs → RTL), **review**, **verify**.
 
 ## How the stages join — the ledger
 
@@ -32,7 +33,7 @@ open question in a ledger that travels with the spec. Every entry names the stag
 it — `behavior`, `reference-defect`, `hardware-binding`, or `must-define-for-hardware` — with a
 status. `hardware-spec`'s inbox is exactly the entries tagged `hardware-binding` and
 `must-define-for-hardware`; it closes them using requirements the code never contained, and then
-emits its own ledger for the RTL stage. So no stage re-reads another's whole output — each inherits
+emits its own ledger for the block-spec stage. So no stage re-reads another's whole output — each inherits
 precisely the decisions it owns. The bus runs both ways: a stage may close only the entries tagged
 for it, and a question uncovered outside its authority is routed back to its owner rather than
 decided quietly.
@@ -54,7 +55,12 @@ any harness, executes them at whatever capability it has.
    │ hardware- │   requirement-driven, top-down; departs from the      ◄──────────┘
    │ spec      │   software mapping only where a requirement forces it
    └─────┬─────┘
-         │   hardware architecture spec  (micro-architecture deferred)
+         │   hardware architecture spec  ──(micro-arch ledger entries)──┐
+   ┌─────▼─────┐   each block decomposed into sub-modules: contracts,    │
+   │ block-    │   top-down PPA budgets that must sum, and     ◄─────────┘
+   │ spec      │   verification obligations named before any code
+   └─────┬─────┘
+         │   block implementation spec  (coding-level choices deferred)
       (rtl-gen …)
 ```
 
@@ -75,22 +81,46 @@ partitioning, no micro-architecture, and no RTL.
 
 ## `hardware-spec` — give it a hardware shape
 
-This is a **requirements-elicitation and architecture-mapping** skill, not a code-analysis one: the
-information that decides the hardware — throughput, clock, area, interface, integration context —
-is not in the code, so its primary input is the **designer**. It asks a fixed requirement checklist
-one convergent question at a time, uses the answers to close the functional spec's deferred
-bindings, and works out each block's architecture. The default is to map the functional spec
-directly; it departs only where a requirement forces it, and names the requirement behind every
-departure — parallelize for throughput, fold for area, add storage for feedback (bounded below by
-the loop's **iteration bound**), define a protocol at each interface — then partitions into
-hardware blocks. It stops at architecture and its rationale, deferring the micro-architecture (and
-the RTL) to the next stage.
+This is a **boundary-definition and architecture-mapping** skill, not a code-analysis one: the
+information that decides the hardware is not in the code — it lives on the hardware frame's
+**boundary**, as concrete properties of concrete ports, and its primary source is the **designer**.
+The stage runs in two phases. **Phase A** starts from the functional spec's hardware-ization scope
+and defines the frame's complete interface contract — every port enumerated, each mapped to the
+functional-spec part it serves, each property (width per beat, rate and streaming discipline,
+backpressure, clock owner, update discipline) elicited as a fact of that port, cross-checked once
+against reference-implied figures at a reconcile step; no internal structure is touched. **Phase B**
+architects within the settled boundary: the default is to map the functional spec directly,
+departing only where a requirement's relation forces it — parallelize for throughput, fold for
+area, add storage for feedback (bounded below by the loop's **iteration bound**) — quantifying what
+the chaining alone demands, and reopening a port through the ledger (with the numbers) if
+quantification proves it infeasible. It stops at architecture and its rationale, deferring the
+micro-architecture (and the RTL) to the next stage.
+
+## `block-spec` — budget it down to sub-modules
+
+This is a **decomposition and budget-allocation** skill: it turns each hardware block into the
+specs RTL will actually be written against. Requirements flow **top-down** as allocated budgets —
+the combinational time a sub-module may spend inside the clock, the initiation interval it must
+sustain, its share of the block's area envelope, the state it owns — with the arithmetic shown and
+every allocation required to **sum** to its envelope. Each sub-module gets a **contract**: its
+function restated whole from the functional spec, its interface pinned, its `Budget:` line
+(re-derived by a verify pass, like hardware-spec's `Parameters:`), and a **verification
+obligation** — the golden evidence that will prove the implementation, named before any code
+exists. The point is to make implementation **bottom-up provable**: each sub-module verified
+against its own contract in isolation, so integration assembles proven pieces instead of
+discovering failures. Tools (generators, DSLs, synthesis probes) are instruments for evidence and
+technique, never part of the delivered flow — the deliverables are documents and source a team
+maintains. It stops at contracts and budgets, deferring coding-level choices (FSM encoding,
+register placement, reset detail) to the RTL stage.
 
 ## Shared design principles
 
 - **Prose specs a person can read start to finish** — meaning before representation.
-- **A convergent conversation, never a wall of choices** — open points are put to the designer one
-  at a time, each carrying a recommended answer.
+- **The question form follows where the answer lives** — *evidence* questions (what the reference
+  means) converge one at a time, each with a recommended reading; *facts* the code cannot contain
+  (the boundary's port properties) are gathered by complete enumeration, never one highlighted
+  question, with reference-implied figures demoted to a post-answer cross-check; *trades* are
+  adjudicated one at a time with both accounts at equal rigor.
 - **An open-questions ledger that travels with the spec** — every entry tagged and given a status,
   so each downstream stage inherits exactly the decisions it must close.
 - **Whole designs in parallel, one deliverable per stage** — drafted block-by-block in parallel,
@@ -124,12 +154,51 @@ project at `<project>/.claude/skills/<skill>/`, or for every project at `~/.clau
   harness; once per-block-file, twice single-document); the verify pass confirmed every block each
   run, caught one ledger mis-routing, and — as the barrier form-check — confirmed the assembled
   document carries every derivation.
+- **`block-spec` — complete, not yet exercised.** `SKILL.md` and both references —
+  `references/method.md` (the budget algebra, the decomposition rule, contracts and verification
+  obligations, the tools-as-instruments boundary, and the verify pass) and
+  `references/spec-template.md` (the output skeleton) — are written and mutually consistent. It has
+  not yet been run end to end on a design; a manual stage-3 try run on the dual-view EOTF block
+  (two RTL implementations, exhaustive golden, formal equivalence, PPA measurement) informed the
+  verification-obligation and tools-as-instruments sections.
 
 ## Revision log
 
 Newest first — what changed in this document and why. The sections above always read as the
 current truth; this log is where the history lives.
 
+- `2026-07-17` — **Boundary-first restructuring** (designer-directed): elicitation had been framing
+  requirement questions with figures from the functional spec (asking throughput via resolution),
+  importing the reference's blind spots — every real requirement failure of the dual-view cycle was
+  a boundary fact the reference could not contain. Now: spec-recovery closes with two
+  **hardware-ization scope** questions (what goes to hardware; how it sits in the surrounding
+  system); hardware-spec splits into **Phase A** (the frame's interface contract — ports enumerated,
+  per-port property sheet, facts gathered by enumeration rather than one-highlighted-question,
+  reference-implied figures demoted to a post-answer reconcile step) and **Phase B** (blocks and
+  chaining quantified within the settled boundary, with a ledger reopen path back to the contract).
+  Question forms codified: facts → enumerate; evidence → converge with a recommendation; trades →
+  adjudicate at equal rigor.
+- `2026-07-16` — hardware-spec hardened with the lessons of a live designer-review cycle on the
+  dual-view design (two mis-elicited requirements survived a whole stage; a stance was overturned
+  by the designer's deeper accounting; a schedule off-by-one escaped inspection): read-backs must
+  state numbers, units, and owners, and never anchor on superseded documents; the binding
+  throughput rate is the unit-of-work **formation rate during a burst**, never the average, and
+  the formation schedule is derived when the delivery unit differs from the unit of work; storage
+  is budgeted at **physical organization** (ports, banks, word width, value domain), never at
+  live-data peaks; schedule claims are verified by **cycle-accurate simulation**, not inspection;
+  competing stances are rejected only at the winner's rigor; the backpressure question is asked,
+  never defaulted (the valid/ready default is removed); the designer may overturn stances
+  (challenge → re-derivation, pinned facts recorded), and the reference model is authoritative on
+  the computation domain. Checklist, method, and template updated together.
+- `2026-07-15` — Added `block-spec`, the third stage: hardware blocks decomposed into sub-modules,
+  each with a functional contract, a top-down PPA budget that must sum (the `Budget:` line, verify
+  re-derived), and a verification obligation named before any code — so RTL proceeds bottom-up
+  against specs that already close. Decided after a manual EOTF try run showed RTL-first jumps
+  straight past the questions only a spec can answer (which structure a budget forces — e.g. an
+  86-level search cannot close a 2 ns clock — and what each piece may spend). Generator/DSL tools
+  are instruments for evidence and technique, never the delivered flow: deliverables stay
+  human-maintainable documents and source. hardware-spec's downstream ownership split accordingly:
+  structural micro-architecture (`micro-arch`) to block-spec, coding-level to the RTL stage.
 - `2026-07-14` — Aggregation hardened: **merging is reconciliation, never summarization.** The
   first A/B re-run of the single-document flow (Dual View, −25% tokens / −44% wall clock, quality
   findings all reproduced) exposed one regression: the hardware document compressed each block's

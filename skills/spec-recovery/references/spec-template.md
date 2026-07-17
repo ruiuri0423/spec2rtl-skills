@@ -14,10 +14,11 @@ dedicated fields (the status line, the open-questions ledger, and the Revision l
 never woven into the prose as an aside. Where the reference does not settle something, do not guess:
 write `UNCONFIRMED:` and carry it to the ledger.
 
-For a whole design, this same skeleton is the shape of the **one** deliverable document: the five
+For a whole design, this same skeleton is the shape of the **one** deliverable document: the
 numbered sections describe the design top-level, followed by a per-block section for each block
-carrying the same five headings — and the open-questions ledger and Revision log appear **once, at
-the foot, for the whole design**, never per block. A decision lives in exactly one place; a ledger
+carrying the first five headings (the hardware-ization scope, §6, appears once, design-level only)
+— and the open-questions ledger and Revision log appear **once, at the foot, for the whole
+design**, never per block. A decision lives in exactly one place; a ledger
 entry that touches several blocks is one entry naming them, not one copy in each.
 
 *Derived from: `<source file>`. Status: draft, pending the open questions below.*
@@ -60,6 +61,16 @@ what ends them, the decisions and what drives them — and include the numeric r
 signs are handled, how values are scaled or rounded, where a result depends on an earlier one. This
 is the heart of the specification; write it so a reader could reconstruct the intended behavior
 without ever seeing the original code.
+
+## 6. Hardware-ization scope — what goes to hardware, and where it sits
+
+Present when the design is headed to hardware; written from the stage's closing conversation with
+the designer, each point traceable to their answer. Two things: the **scope** — which of the blocks
+above are to be realized in hardware and which remain software, with the reference's harness (file
+I/O, golden dumping, test iteration) named out of scope explicitly so no later stage wastes work on
+it; and the **system context** — who produces the hardware's input, who consumes its output, who
+configures it, and in what form. This section is the hardware stage's starting point: its boundary
+definition begins from this context, never from a re-reading of the code.
 
 ## Open questions (ledger)
 

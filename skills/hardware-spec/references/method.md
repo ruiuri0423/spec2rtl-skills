@@ -55,13 +55,19 @@ designer supplies never redefines the domain the model computes in.
 ## The schedule
 
 For a whole design, this stage declares a schedule and leaves how it runs to the `pipeline` skill —
-stepwise or concurrent, the outputs are identical: **elicit the requirements** (one convergent
-conversation; its answers feed everything) → **architect each block** *(independent tasks — one per
-block: parameters, relations, stance — each producing a draft, not a deliverable)* → **verify each
-block** *(independent — one fresh derivation per drafted block)* → **partition, aggregate, and
-converge** *(barrier — needs every verified block: the hardware partition, the interfaces between
-blocks, and the assembly of the drafts into the one architecture document — one body, one merged
-ledger, one Revision log — with every surfaced question routed to its owner)*. The deliverable is
+stepwise or concurrent, the outputs are identical: **Phase A — define the boundary** (from the
+functional spec's hardware-ization scope, enumerate the frame's ports and elicit each port's
+properties per the checklist's property sheet; close with the reconcile step) → **interface-contract
+barrier** (the boundary is settled, recorded, and read back before anything internal starts) →
+**Phase B — architect each block** *(independent tasks — one per block: parameters, relations,
+stance — each producing a draft, not a deliverable)* → **verify each block** *(independent — one
+fresh derivation per drafted block)* → **partition, aggregate, and converge** *(barrier — needs
+every verified block: the hardware partition, the interfaces between blocks, and the assembly of
+the drafts into the one architecture document — one body, one merged ledger, one Revision log —
+with every surfaced question routed to its owner)*. Phase B holds a **reopen path to Phase A**: a
+quantified infeasibility against a port property (a rate against `T∞`, a width against the area
+target) reopens that port through the ledger with its numbers — renegotiated with the designer,
+never silently adjusted, and never absorbed into the internals. The deliverable is
 that single document; per-block drafts do not survive the barrier, so every later resolution —
 including an answer routed back from the functional stage — lands in exactly one place (the
 `pipeline` skill defines this aggregation point). And because the drafts do not survive, **the
@@ -97,8 +103,10 @@ architecture, it is an impression.
   iteration bound**, and every path may be pipelined and folded freely. *(Example: JPEG's DC
   predictor — each block's DC adds the previous block's DC — is a one-register loop around an adder;
   its `T∞` is that adder's delay, and it caps how fast the DC path can go.)*
-- **`f_clk`, `rate`, `A_bud`, `L_budget`, interface rates and widths** come from the requirements
-  (elicited), not the spec — mark each as the hard constraint or target it was recorded as.
+- **`f_clk`, `rate`, `A_bud`, `L_budget`, interface rates and widths** come from **Phase A's
+  interface contract** — each is a property of a named port (or a frame-level target), carried with
+  the hard/target mark it was recorded under. Phase B never re-elicits these and never invents one:
+  a parameter with no home in the contract is a missing port property, which reopens Phase A.
 - **The unit of work, and its formation schedule.** The algorithm's unit of work is often not the
   interface's delivery unit (a beat of adjacent same-view pixels is not a mirror-pair). When they
   differ, derive the **formation schedule** before any throughput relation fires: from the delivery
